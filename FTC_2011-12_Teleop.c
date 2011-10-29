@@ -51,8 +51,45 @@ task main(){
     //       diagonally (ie. pushed into a corner)
 
     //------------------------------------
-
-
+		int wheels_x1;
+		int wheels_y1;
+		int left_wheelsPower;
+		int right_wheelsPower;
+		
+		wheels_x1 = joystick.joy1_x1; //x-value = left-right movement
+		wheels_y1 = joystick.joy1_y1; //y-value = up-down movmeent
+		
+		/*RANGES OF MOTION - is this a good system?
+			Take grid of joystick x-values and y-values, split into twelve 30 degree triangles
+			Test to see which triangle values fall in
+			Depending on triangle, move forwards/backwards/point turn/swing turn
+		*/
+		
+		
+		//If NOT forward/backward/point turn, then swing turn
+		
+			//Forward - y-value greater than 10, x-value between 10 and -10
+		
+			//Backward - y-value less than -10, x-value between 10 and -10
+		
+			//Point Turn Left
+		
+			//Point Turn Right
+		
+		//Swing Turn Left
+		
+		//Swing Turn Right
+		
+		
+		//Cancel out Joystick
+		
+		
+		//Drive Code
+		motor[driveLFront] = left_wheelsPower;
+		motor[driveLBack] = left_wheelsPower;
+		motor[driveRFront] = right_wheelsPower;
+		motor[driveRBack] = right_wheelsPower;
+		
     //------------Arms--------------------
 
     //Primary Objective:
