@@ -138,6 +138,30 @@ task main(){
 
     //------------------------------------
 
+	/* I'm not sure if the "leftClaw" and "rightClaw" variables are correct; there seems to be some source code missing. */
+    if (joystick.joy1_Buttons == 7)
+    {
+      //close left claw
+      leftClaw = LCLAWCLOSE;
+    }
+
+    if (joystick.joy2_Buttons == 7)
+    {
+      //close right claw
+      rightClaw = RCLAWCLOSE;
+    }
+
+    if (joystick.joy1_Buttons == 8)
+    {
+      //open left claw
+      leftClaw = LCLAWOPEN;
+    }
+
+    if (joystick.joy2_Buttons == 8)
+    {
+      //open right claw
+      rightClaw = RCLAWOPEN;
+    }
 
     //-----------Tread--------------------
 
