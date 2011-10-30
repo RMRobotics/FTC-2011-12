@@ -17,6 +17,16 @@
 
 #include "JoystickDriver.c"
 
+
+//Function - finds the tangent of the given value; RobotC does not support tan()  :(
+float tangentOf(float tanvalue) {
+	float calc_tanvalue;
+	calc_tanvalue = sin(tanvalue) / cos(tanvalue)
+	
+	return calc_tanvalue;
+}
+
+
 task main(){
 
   //-----------Constants------------------
@@ -56,33 +66,48 @@ task main(){
 		int left_wheelsPower;
 		int right_wheelsPower;
 		
-		wheels_x1 = joystick.joy1_x1; //x-value = left-right movement
-		wheels_y1 = joystick.joy1_y1; //y-value = up-down movmeent
+		float angle_leftright;        //Used for calculating size of triangle of motion that will define point turning left/right
+		float angle_updown;           //Used for calculating size of triangle of motion that will define moving forward/back
 		
-		/*RANGES OF MOTION - is this a good system?
+		wheels_x1 = joystick.joy1_x1; //x-value = left-right joystick movement
+		wheels_y1 = joystick.joy1_y1; //y-value = up-down joystick movmeent
+	
+		angle_leftright = PI/6;       //Graph of y=tan(angle_leftright) used for point turn left/right; MUST BE IN RADIANS
+		angle_updown = PI/3;          //Graph of y=tan(angle_updown) used for forward/back; MUST BE IN RADIANS
+		
+		/*RANGES OF MOTION
 			Take grid of joystick x-values and y-values, split into twelve 30 degree triangles
+				Use graphs of y=tan(30)x, y=-tan(30)x, y=tan(60)x, y=-tan(60)x  -  
+				To alter sizes of triangles, change the degree (e.g. tan(45))
 			Test to see which triangle values fall in
 			Depending on triangle, move forwards/backwards/point turn/swing turn
 		*/
 		
-		
-		//If NOT forward/backward/point turn, then swing turn
-		
-			//Forward - y-value greater than 10, x-value between 10 and -10
-		
-			//Backward - y-value less than -10, x-value between 10 and -10
-		
-			//Point Turn Left
-		
-			//Point Turn Right
-		
-		//Swing Turn Left
-		
-		//Swing Turn Right
-		
-		
-		//Cancel out Joystick
-		
+		//!! ROBOTC DOES NOT SUPPORT TAN() FUNCTION - Use user-defined function tangentOf(angle_leftright or angle_updown)
+
+		if(!(wheels_x1<10 && wheels_x1>-10 && wheels_y1<10 && wheels_y1>-10)) {                  //If in deadzone, ignore movement - no need to run useless code
+			
+			if((wheels_y1 <= tangentOf(angle_leftright)*wheels_x1) && (wheels_y1 >= -tangentOf(angle_leftright)*wheels_x1)) {          //Check for right movement
+				//ADD RIGHT POINT TURN MOVEMENT CODE
+					//Set power variables to -100 and 100
+			}else if((wheels_y1 >= tangentOf(angle_leftright)*wheels_x1) && (wheels_y1 >= -tangentOf(angle_leftright)*wheels_x1)) {    //Check for left movement
+				//ADD LEFT POINT TURN MOVEMENT CODE
+					//Set power variables to -100 and 100
+			}else if((wheels_y1 >= tangentOf(angle_updown)*wheels_x1) && (wheels_y1 >= -tangentOf(angle_updown)*wheels_x1)) {    //Check for up movement
+				//ADD UP MOVEMENT CODE
+					//Set power variables to 100 and 100
+			}else if((wheels_y1 <= tangentOf(angle_updown)*wheels_x1) && (wheels_y1 <= -tangentOf(angle_updown)*wheels_x1)) {    //Check for down movement
+				//ADD DOWN MOVEMENT CODE
+					//Set power variables to -100 and -100
+			}else {																		 //If NOT forward/backward/point turn, then swing turn
+				//CHECK WHICH QUADRANT VALUES ARE IN
+					//Swing turn depending on which quadrant values are in
+			}
+			
+		}else {   //Joystick is in dead zone - set powers to zero
+			left_wheelsPower=0;
+			right_wheelsPower=0;
+		}
 		
 		//Drive Code
 		motor[driveLFront] = left_wheelsPower;
