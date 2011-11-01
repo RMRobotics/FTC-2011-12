@@ -90,7 +90,7 @@ task main(){
 				//Right Point Turn -- Move right tread backwards, left tread forwards
 				left_wheelsPower=WHEELSPEED;
 				right_wheelsPower=-WHEELSPEED;
-			}else if((wheels_y1 >= tangentOf(angle_leftright)*wheels_x1) && (wheels_y1 >= -tangentOf(angle_leftright)*wheels_x1)) {    //Check for left movement
+			}else if((wheels_y1 >= tangentOf(angle_leftright)*wheels_x1) && (wheels_y1 <= -tangentOf(angle_leftright)*wheels_x1)) {    //Check for left movement
 				//Left Point Turn -- Move right tread forwards, left tread backwards
 				left_wheelsPower=-WHEELSPEED;
 			  right_wheelsPower=WHEELSPEED;
@@ -105,6 +105,26 @@ task main(){
 			}//else {																		 //If NOT forward/backward/point turn, then swing turn
 				//CHECK WHICH QUADRANT VALUES ARE IN
 					//Swing turn depending on which quadrant values are in
+				if(wheels_x1>0 && wheels_y1>0) {
+					//SWING TURN RIGHT
+					left_wheelsPower=WHEELSPEED;
+					right_wheelsPower=WHEELSPEED/2;
+
+				}else if(wheels_x1<0 && wheels_y1>0) {
+					//SWING TURN LEFT
+					left_wheelsPower=WHEELSPEED/2;
+					right_wheelsPower=WHEELSPEED;
+
+				}else if(wheels_x1<0 && wheels_y1<0) {
+					//SWING TURN BACKWARDS LEFT
+					left_wheelsPower=-WHEELSPEED/2;
+					right_wheelsPower=-WHEELSPEED;
+
+				}else {
+					//SWING TURN BACKWARDS RIGHT
+					left_wheelsPower=-WHEELSPEED;
+					right_wheelsPower=-WHEELSPEED/2;
+				}
 			//}
 
 		}else {   //Joystick is in dead zone - set powers to zero
