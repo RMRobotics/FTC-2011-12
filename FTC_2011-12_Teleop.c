@@ -60,7 +60,7 @@ task main(){
     //     - Make robot swing-turn when left joystick is pushed
     //       diagonally (ie. pushed into a corner)
 
-    int wheels_x1;
+		int wheels_x1;
 		int wheels_y1;
 		int left_wheelsPower;
 		int right_wheelsPower;
@@ -93,15 +93,15 @@ task main(){
 			}else if((wheels_y1 >= tangentOf(angle_leftright)*wheels_x1) && (wheels_y1 <= -tangentOf(angle_leftright)*wheels_x1)) {    //Check for left movement
 				//Left Point Turn -- Move right tread forwards, left tread backwards
 				left_wheelsPower=-WHEELSPEED;
-			  right_wheelsPower=WHEELSPEED;
+				right_wheelsPower=WHEELSPEED;
 			}else if((wheels_y1 >= tangentOf(angle_updown)*wheels_x1) && (wheels_y1 >= -tangentOf(angle_updown)*wheels_x1)) {    //Check for up movement
 				//Forward -- Move both treads forwards
-        left_wheelsPower=WHEELSPEED;
-			  right_wheelsPower=WHEELSPEED;
+				left_wheelsPower=WHEELSPEED;
+				right_wheelsPower=WHEELSPEED;
 			}else if((wheels_y1 <= tangentOf(angle_updown)*wheels_x1) && (wheels_y1 <= -tangentOf(angle_updown)*wheels_x1)) {    //Check for down movement
-				//Forward -- Move both treads backwards
+				//Backward -- Move both treads backwards
 				left_wheelsPower=-WHEELSPEED;
-			  right_wheelsPower=-WHEELSPEED;
+				right_wheelsPower=-WHEELSPEED;
 			}//else {																		 //If NOT forward/backward/point turn, then swing turn
 				//CHECK WHICH QUADRANT VALUES ARE IN
 					//Swing turn depending on which quadrant values are in
@@ -138,7 +138,7 @@ task main(){
 		motor[frontRightWheel] = right_wheelsPower;
 		motor[backRightWheel] = right_wheelsPower;
 
-		//------------------------------------
+	//------------------------------------
 
 
     //------------Arms--------------------
@@ -153,17 +153,17 @@ task main(){
     //     - see if you can find a way to get the arms to rotate to a predetermined position and then stop
 
 		while(joy1Btn(5)==1 || joy1Btn(6)==1){
-      if(joy1Btn(5)==1){
-        motor[leftArm]=-ARMSPEED;
-        motor[rightArm]=-ARMSPEED;
-      }else if(joy1Btn(6)==1){
-        motor[leftArm]=ARMSPEED;
-        motor[rightArm]=ARMSPEED;
-      }
-    }
+			if(joy1Btn(5)==1){
+				motor[leftArm]=-ARMSPEED;
+				motor[rightArm]=-ARMSPEED;
+			}else if(joy1Btn(6)==1){
+				motor[leftArm]=ARMSPEED;
+				motor[rightArm]=ARMSPEED;
+			}
+		}
 
-    motor[leftArm]=0;
-    motor[rightArm]=0;
+		motor[leftArm]=0;
+		motor[rightArm]=0;
 
     //------------------------------------
 
@@ -176,21 +176,19 @@ task main(){
     //     - closing positions for left/right claws are LCLAWCLOSE and RCLAWCLOSE
 
     /* I'm not sure if the "leftClaw" and "rightClaw" variables are correct; there seems to be some source code missing. */
-    if (joystick.joy1_Buttons == 7)
-    {
-      //close left claw
-      servo[leftClaw]=LCLAWCLOSE;
-      //close right claw
-      servo[rightClaw]=RCLAWCLOSE;
-    }
+		if (joystick.joy1_Buttons == 7){
+			//Close left claw
+			servo[leftClaw]=LCLAWCLOSE;
+			//Close right claw
+			servo[rightClaw]=RCLAWCLOSE;
+		}
 
-    if (joystick.joy1_Buttons == 8)
-    {
-      //open left claw
-      servo[leftClaw]=LCLAWOPEN;
-      //open right claw
-      servo[rightClaw]=RCLAWOPEN;
-    }
+		if (joystick.joy1_Buttons == 8){
+			//Open left claw
+			servo[leftClaw]=LCLAWOPEN;
+			//Open right claw
+			servo[rightClaw]=RCLAWOPEN;
+		}
 
     //------------------------------------
 
