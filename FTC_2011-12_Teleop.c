@@ -87,19 +87,19 @@ task main(){
 		if(!(wheels_x1<10 && wheels_x1>-10 && wheels_y1<10 && wheels_y1>-10)) {                  //If in deadzone, ignore movement - no need to run useless code
 
 			if((wheels_y1 <= tangentOf(angle_leftright)*wheels_x1) && (wheels_y1 >= -tangentOf(angle_leftright)*wheels_x1)) {          //Check for right movement
-				//ADD RIGHT POINT TURN MOVEMENT CODE
+				//Right Point Turn -- Move right tread backwards, left tread forwards
 				left_wheelsPower=WHEELSPEED;
-			  right_wheelsPower=-WHEELSPEED;
+				right_wheelsPower=-WHEELSPEED;
 			}else if((wheels_y1 >= tangentOf(angle_leftright)*wheels_x1) && (wheels_y1 >= -tangentOf(angle_leftright)*wheels_x1)) {    //Check for left movement
-				//ADD LEFT POINT TURN MOVEMENT CODE
+				//Left Point Turn -- Move right tread forwards, left tread backwards
 				left_wheelsPower=-WHEELSPEED;
 			  right_wheelsPower=WHEELSPEED;
 			}else if((wheels_y1 >= tangentOf(angle_updown)*wheels_x1) && (wheels_y1 >= -tangentOf(angle_updown)*wheels_x1)) {    //Check for up movement
-				//ADD UP MOVEMENT CODE
+				//Forward -- Move both treads forwards
         left_wheelsPower=WHEELSPEED;
 			  right_wheelsPower=WHEELSPEED;
 			}else if((wheels_y1 <= tangentOf(angle_updown)*wheels_x1) && (wheels_y1 <= -tangentOf(angle_updown)*wheels_x1)) {    //Check for down movement
-				//ADD DOWN MOVEMENT CODE
+				//Forward -- Move both treads backwards
 				left_wheelsPower=-WHEELSPEED;
 			  right_wheelsPower=-WHEELSPEED;
 			}//else {																		 //If NOT forward/backward/point turn, then swing turn
