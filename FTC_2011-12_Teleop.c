@@ -21,8 +21,8 @@
 //Function - finds the tangent of the given value; RobotC does not support tan()  :(
 float tangentOf(float tanvalue) {
 	float calc_tanvalue;
-	calc_tanvalue = sin(tanvalue) / cos(tanvalue)
-	
+	calc_tanvalue = sin(tanvalue) / cos(tanvalue);
+
 	return calc_tanvalue;
 }
 
@@ -30,13 +30,13 @@ float tangentOf(float tanvalue) {
 task main(){
 
   //-----------Constants------------------
-  #define WHEELSPEED = 75;
-  #define ARMSPEED = 20;
-  #define TREADSPEED = 20;
-  #define LCLAWOPEN = 127;
-  #define LCLAWCLOSE = 255;
-  #define RCLAWOPEN = 128;
-  #define RCLAWCLOSE = 0;
+  #define WHEELSPEED 75
+  #define ARMSPEED 20
+  #define TREADSPEED 20
+  #define LCLAWOPEN 127
+  #define LCLAWCLOSE 255
+  #define RCLAWOPEN 128
+  #define RCLAWCLOSE 0
   //--------------------------------------
   // when give your motors/servos values, use these constants, not numbers
   // so that if we need to change them, they're easy to access
@@ -60,61 +60,67 @@ task main(){
     //     - Make robot swing-turn when left joystick is pushed
     //       diagonally (ie. pushed into a corner)
 
-    //------------------------------------
-		int wheels_x1;
+    int wheels_x1;
 		int wheels_y1;
 		int left_wheelsPower;
 		int right_wheelsPower;
-		
+
 		float angle_leftright;        //Used for calculating size of triangle of motion that will define point turning left/right
 		float angle_updown;           //Used for calculating size of triangle of motion that will define moving forward/back
-		
+
 		wheels_x1 = joystick.joy1_x1; //x-value = left-right joystick movement
 		wheels_y1 = joystick.joy1_y1; //y-value = up-down joystick movmeent
-	
+
 		angle_leftright = PI/6;       //Graph of y=tan(angle_leftright) used for point turn left/right; MUST BE IN RADIANS
 		angle_updown = PI/3;          //Graph of y=tan(angle_updown) used for forward/back; MUST BE IN RADIANS
-		
+
 		/*RANGES OF MOTION
 			Take grid of joystick x-values and y-values, split into twelve 30 degree triangles
-				Use graphs of y=tan(30)x, y=-tan(30)x, y=tan(60)x, y=-tan(60)x  -  
+				Use graphs of y=tan(30)x, y=-tan(30)x, y=tan(60)x, y=-tan(60)x  -
 				To alter sizes of triangles, change the degree (e.g. tan(45))
 			Test to see which triangle values fall in
 			Depending on triangle, move forwards/backwards/point turn/swing turn
 		*/
-		
+
 		//!! ROBOTC DOES NOT SUPPORT TAN() FUNCTION - Use user-defined function tangentOf(angle_leftright or angle_updown)
 
 		if(!(wheels_x1<10 && wheels_x1>-10 && wheels_y1<10 && wheels_y1>-10)) {                  //If in deadzone, ignore movement - no need to run useless code
-			
+
 			if((wheels_y1 <= tangentOf(angle_leftright)*wheels_x1) && (wheels_y1 >= -tangentOf(angle_leftright)*wheels_x1)) {          //Check for right movement
 				//ADD RIGHT POINT TURN MOVEMENT CODE
-					//Set power variables to -100 and 100
+				left_wheelsPower=WHEELSPEED;
+			  right_wheelsPower=-WHEELSPEED;
 			}else if((wheels_y1 >= tangentOf(angle_leftright)*wheels_x1) && (wheels_y1 >= -tangentOf(angle_leftright)*wheels_x1)) {    //Check for left movement
 				//ADD LEFT POINT TURN MOVEMENT CODE
-					//Set power variables to -100 and 100
+				left_wheelsPower=-WHEELSPEED;
+			  right_wheelsPower=WHEELSPEED;
 			}else if((wheels_y1 >= tangentOf(angle_updown)*wheels_x1) && (wheels_y1 >= -tangentOf(angle_updown)*wheels_x1)) {    //Check for up movement
 				//ADD UP MOVEMENT CODE
-					//Set power variables to 100 and 100
+        left_wheelsPower=WHEELSPEED;
+			  right_wheelsPower=WHEELSPEED;
 			}else if((wheels_y1 <= tangentOf(angle_updown)*wheels_x1) && (wheels_y1 <= -tangentOf(angle_updown)*wheels_x1)) {    //Check for down movement
 				//ADD DOWN MOVEMENT CODE
-					//Set power variables to -100 and -100
-			}else {																		 //If NOT forward/backward/point turn, then swing turn
+				left_wheelsPower=-WHEELSPEED;
+			  right_wheelsPower=-WHEELSPEED;
+			}//else {																		 //If NOT forward/backward/point turn, then swing turn
 				//CHECK WHICH QUADRANT VALUES ARE IN
 					//Swing turn depending on which quadrant values are in
-			}
-			
+			//}
+
 		}else {   //Joystick is in dead zone - set powers to zero
 			left_wheelsPower=0;
 			right_wheelsPower=0;
 		}
-		
+
 		//Drive Code
-		motor[driveLFront] = left_wheelsPower;
-		motor[driveLBack] = left_wheelsPower;
-		motor[driveRFront] = right_wheelsPower;
-		motor[driveRBack] = right_wheelsPower;
-		
+		motor[frontLeftWheel] = left_wheelsPower;
+		motor[backLeftWheel] = left_wheelsPower;
+		motor[frontRightWheel] = right_wheelsPower;
+		motor[backRightWheel] = right_wheelsPower;
+
+		//------------------------------------
+
+
     //------------Arms--------------------
 
     //Primary Objective:
@@ -126,6 +132,19 @@ task main(){
     //Secondary Objective:
     //     - see if you can find a way to get the arms to rotate to a predetermined position and then stop
 
+		while(joy1Btn(5)==1 || joy1Btn(6)==1){
+      if(joy1Btn(5)==1){
+        motor[leftArm]=-ARMSPEED;
+        motor[rightArm]=-ARMSPEED;
+      }else if(joy1Btn(6)==1){
+        motor[leftArm]=ARMSPEED;
+        motor[rightArm]=ARMSPEED;
+      }
+    }
+
+    motor[leftArm]=0;
+    motor[rightArm]=0;
+
     //------------------------------------
 
 
@@ -136,38 +155,39 @@ task main(){
     //     - opening positions for left/right claws are LCLAWOPEN and RCLAWOPEN
     //     - closing positions for left/right claws are LCLAWCLOSE and RCLAWCLOSE
 
-    //------------------------------------
-
-	/* I'm not sure if the "leftClaw" and "rightClaw" variables are correct; there seems to be some source code missing. */
+    /* I'm not sure if the "leftClaw" and "rightClaw" variables are correct; there seems to be some source code missing. */
     if (joystick.joy1_Buttons == 7)
     {
       //close left claw
-      leftClaw = LCLAWCLOSE;
-    }
-
-    if (joystick.joy2_Buttons == 7)
-    {
+      servo[leftClaw]=LCLAWCLOSE;
       //close right claw
-      rightClaw = RCLAWCLOSE;
+      servo[rightClaw]=RCLAWCLOSE;
     }
 
     if (joystick.joy1_Buttons == 8)
     {
       //open left claw
-      leftClaw = LCLAWOPEN;
+      servo[leftClaw]=LCLAWOPEN;
+      //open right claw
+      servo[rightClaw]=RCLAWOPEN;
     }
 
-    if (joystick.joy2_Buttons == 8)
-    {
-      //open right claw
-      rightClaw = RCLAWOPEN;
-    }
+    //------------------------------------
+
 
     //-----------Tread--------------------
 
     //Primary Objective:
     //     - if btn 1 is pressed, have tread move forward until btn 2 is pressed.
     //     - tread should move at speed TREADSPEED
+
+    /*if(joy1Btn(1)==1){
+      motor[frontTread]=TREADSPEED;
+      motor[backTread]=TREADSPEED;
+    }else if(joy1Btn(2)==1){
+      motor[frontTread]=0;
+      motor[backTread]=0;
+    }*/
 
     //------------------------------------
   }
