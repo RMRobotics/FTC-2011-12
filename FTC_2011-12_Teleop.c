@@ -17,6 +17,21 @@
 
 #include "JoystickDriver.c"
 
+int initialize(int lOpen, int rOpen, int position1, int position2){
+  motor[frontLeftWheel]=0;
+  motor[frontRightWheel]=0;
+  motor[backLeftWheel]=0;
+  motor[backRightWheel]=0;
+  motor[leftArm]=0;
+  motor[rightArm]=0;
+  nMotorEncoder[leftArm]=0;
+  servo[leftClaw]=lOpen;
+  servo[rightClaw]=rOpen;
+  position1 = 0;
+  position2 = 0;
+  return position1;
+  return position2;
+}
 
 //Function - finds the tangent of the given value; RobotC does not support tan()  :(
 float tangentOf(float tanvalue) {
@@ -41,6 +56,9 @@ task main(){
   // when give your motors/servos values, use these constants, not numbers
   // so that if we need to change them, they're easy to access
 
+  int position1, position2;
+  initialize(LCLAWOPEN, RCLAWOPEN, position1, position2);
+
   while(true){
 
     getJoystickSettings(joystick);
@@ -60,7 +78,7 @@ task main(){
     //     - Make robot swing-turn when left joystick is pushed
     //       diagonally (ie. pushed into a corner)
 
-		int wheels_x1;
+    		int wheels_x1;
 		int wheels_y1;
 		int left_wheelsPower;
 		int right_wheelsPower;
@@ -89,22 +107,22 @@ task main(){
 			if((wheels_y1 <= tangentOf(angle_leftright)*wheels_x1) && (wheels_y1 >= -tangentOf(angle_leftright)*wheels_x1)) {          //Check for right movement
 				//Right Point Turn -- Move right tread backwards, left tread forwards
 				left_wheelsPower=WHEELSPEED;
-				right_wheelsPower=-WHEELSPEED;
+			  	right_wheelsPower=-WHEELSPEED;
 			}else if((wheels_y1 >= tangentOf(angle_leftright)*wheels_x1) && (wheels_y1 <= -tangentOf(angle_leftright)*wheels_x1)) {    //Check for left movement
 				//Left Point Turn -- Move right tread forwards, left tread backwards
 				left_wheelsPower=-WHEELSPEED;
-				right_wheelsPower=WHEELSPEED;
+			  	right_wheelsPower=WHEELSPEED;
 			}else if((wheels_y1 >= tangentOf(angle_updown)*wheels_x1) && (wheels_y1 >= -tangentOf(angle_updown)*wheels_x1)) {    //Check for up movement
 				//Forward -- Move both treads forwards
-				left_wheelsPower=WHEELSPEED;
-				right_wheelsPower=WHEELSPEED;
+        			left_wheelsPower=WHEELSPEED;
+			  	right_wheelsPower=WHEELSPEED;
 			}else if((wheels_y1 <= tangentOf(angle_updown)*wheels_x1) && (wheels_y1 <= -tangentOf(angle_updown)*wheels_x1)) {    //Check for down movement
 				//Backward -- Move both treads backwards
 				left_wheelsPower=-WHEELSPEED;
-				right_wheelsPower=-WHEELSPEED;
-			}//else {																		 //If NOT forward/backward/point turn, then swing turn
+			  	right_wheelsPower=-WHEELSPEED;
+			}else {																		 //If NOT forward/backward/point turn, then swing turn
 				//CHECK WHICH QUADRANT VALUES ARE IN
-					//Swing turn depending on which quadrant values are in
+				//Swing turn depending on which quadrant values are in
 				if(wheels_x1>0 && wheels_y1>0) {
 					//SWING TURN RIGHT
 					left_wheelsPower=WHEELSPEED;
@@ -125,7 +143,7 @@ task main(){
 					left_wheelsPower=-WHEELSPEED;
 					right_wheelsPower=-WHEELSPEED/2;
 				}
-			//}
+			}
 
 		}else {   //Joystick is in dead zone - set powers to zero
 			left_wheelsPower=0;
@@ -138,7 +156,7 @@ task main(){
 		motor[frontRightWheel] = right_wheelsPower;
 		motor[backRightWheel] = right_wheelsPower;
 
-	//------------------------------------
+		//------------------------------------
 
 
     //------------Arms--------------------
@@ -152,18 +170,40 @@ task main(){
     //Secondary Objective:
     //     - see if you can find a way to get the arms to rotate to a predetermined position and then stop
 
-		while(joy1Btn(5)==1 || joy1Btn(6)==1){
-			if(joy1Btn(5)==1){
-				motor[leftArm]=-ARMSPEED;
-				motor[rightArm]=-ARMSPEED;
-			}else if(joy1Btn(6)==1){
-				motor[leftArm]=ARMSPEED;
-				motor[rightArm]=ARMSPEED;
-			}
-		}
-
-		motor[leftArm]=0;
-		motor[rightArm]=0;
+		if(joy1Btn(5) == 1 || joy1Btn(6) == 1){
+			if(servo[leftClaw]==LCLAWCLOSE){
+				if(joy1Btn(5)==1){
+          				motor[leftArm]=-ARMSPEED*4;
+          				motor[rightArm]=-ARMSPEED*4;
+        			}else if(joy1Btn(6)==1){
+         				motor[leftArm]=ARMSPEED;
+          				motor[rightArm]=ARMSPEED;
+        			}else{
+          				motor[leftArm]=0;
+          				motor[rightArm]=0;
+        			}
+      			}else{
+        			if(joy1Btn(5)==1){
+         				motor[leftArm]=-ARMSPEED;
+          				motor[rightArm]=-ARMSPEED;
+        			}else if(joy1Btn(6)==1){
+          				motor[leftArm]=ARMSPEED;
+          				motor[rightArm]=ARMSPEED;
+        			}else{
+          				motor[leftArm]=0;
+          				motor[rightArm]=0;
+        			}
+      			}
+      			position1 = nMotorEncoder[leftArm];
+      			position2 = position1;
+    		}else{
+      			position2 = position1;
+      			position1 = nMotorEncoder[leftArm];
+      			if(position1 != position2){
+       				motor[leftArm]=-ARMSPEED*4;
+        			motor[rightArm]=-ARMSPEED*4;
+      			}
+   		}
 
     //------------------------------------
 
@@ -175,20 +215,19 @@ task main(){
     //     - opening positions for left/right claws are LCLAWOPEN and RCLAWOPEN
     //     - closing positions for left/right claws are LCLAWCLOSE and RCLAWCLOSE
 
-    /* I'm not sure if the "leftClaw" and "rightClaw" variables are correct; there seems to be some source code missing. */
-		if (joystick.joy1_Buttons == 7){
-			//Close left claw
-			servo[leftClaw]=LCLAWCLOSE;
-			//Close right claw
-			servo[rightClaw]=RCLAWCLOSE;
-		}
+    if (joystick.joy1_Buttons == 7){
+    	//close left claw
+    	servo[leftClaw]=LCLAWCLOSE;
+    	//close right claw
+    	servo[rightClaw]=RCLAWCLOSE;
+    }
 
-		if (joystick.joy1_Buttons == 8){
-			//Open left claw
-			servo[leftClaw]=LCLAWOPEN;
-			//Open right claw
-			servo[rightClaw]=RCLAWOPEN;
-		}
+    if (joystick.joy1_Buttons == 8){
+    	//open left claw
+    	servo[leftClaw]=LCLAWOPEN;
+    	//open right claw
+    	servo[rightClaw]=RCLAWOPEN;
+    }
 
     //------------------------------------
 
@@ -199,13 +238,13 @@ task main(){
     //     - if btn 1 is pressed, have tread move forward until btn 2 is pressed.
     //     - tread should move at speed TREADSPEED
 
-    /*if(joy1Btn(1)==1){
+    if(joy1Btn(1)==1){
       motor[frontTread]=TREADSPEED;
       motor[backTread]=TREADSPEED;
     }else if(joy1Btn(2)==1){
       motor[frontTread]=0;
       motor[backTread]=0;
-    }*/
+    }
 
     //------------------------------------
   }
