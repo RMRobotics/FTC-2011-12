@@ -17,7 +17,19 @@
 
 #include "JoystickDriver.c"
 
-int initialize(int lOpen, int rOpen, int position1, int position2)
+//-----------Constants------------------
+#define WHEELSPEED 75
+#define ARMSPEED 20
+#define TREADSPEED 20
+#define LCLAWOPEN 127
+#define LCLAWCLOSE 255
+#define RCLAWOPEN 128
+#define RCLAWCLOSE 0
+//--------------------------------------
+// when give your motors/servos values, use these constants, not numbers
+// so that if we need to change them, they're easy to access
+
+void initialize(int lOpen, int rOpen)
 {
     motor[frontLeftWheel] = 0;
     motor[frontRightWheel] = 0;
@@ -28,10 +40,6 @@ int initialize(int lOpen, int rOpen, int position1, int position2)
     nMotorEncoder[leftArm] = 0;
     servo[leftClaw] = lOpen;
     servo[rightClaw] = rOpen;
-    position1 = 0;
-    position2 = 0;
-    return position1;
-    return position2;
 }
 
 //Function - finds the tangent of the given value; RobotC does not support tan()  :(
@@ -43,24 +51,11 @@ float tangentOf(float tanvalue)
     return calc_tanvalue;
 }
 
-
 task main()
 {
-
-    //-----------Constants------------------
-#define WHEELSPEED 75
-#define ARMSPEED 20
-#define TREADSPEED 20
-#define LCLAWOPEN 127
-#define LCLAWCLOSE 255
-#define RCLAWOPEN 128
-#define RCLAWCLOSE 0
-    //--------------------------------------
-    // when give your motors/servos values, use these constants, not numbers
-    // so that if we need to change them, they're easy to access
-
-    int position1, position2;
-    initialize(LCLAWOPEN, RCLAWOPEN, position1, position2);
+    int position1 = 0;
+    int position2 = 0;
+    initialize(LCLAWOPEN, RCLAWOPEN);
 
     while (true) {
 
