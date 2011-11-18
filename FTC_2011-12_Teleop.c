@@ -42,20 +42,18 @@ void initialize(int lOpen, int rOpen)
     servo[rightClaw] = rOpen;
 }
 
-//Function - finds the tangent of the given value; RobotC does not support tan()  :(
-float tangentOf(float tanvalue)
-{
-    float calc_tanvalue;
-    calc_tanvalue = sin(tanvalue) / cos(tanvalue);
-
-    return calc_tanvalue;
-}
-
 task main()
 {
     int position1 = 0;
     int position2 = 0;
     initialize(LCLAWOPEN, RCLAWOPEN);
+
+    //Used for calculating size of triangle of motion that will define point turning left/right
+    float tan_angle_leftright = 1.0 / sqrt(3); // tan(PI / 6);	//Graph of y=tan(angle_leftright) used for point turn left/right; MUST BE IN RADIANS
+
+    //Used for calculating size of triangle of motion that will define moving forward/back
+    float tan_angle_updown = sqrt(3);          // tan(PI / 3);	//Graph of y=tan(angle_updown) used for forward/back; MUST BE IN RADIANS
+
 
     while (true) {
 
@@ -81,14 +79,8 @@ task main()
 	int left_wheelsPower;
 	int right_wheelsPower;
 
-	float angle_leftright;	//Used for calculating size of triangle of motion that will define point turning left/right
-	float angle_updown;	//Used for calculating size of triangle of motion that will define moving forward/back
-
 	wheels_x1 = joystick.joy1_x1;	//x-value = left-right joystick movement
 	wheels_y1 = joystick.joy1_y1;	//y-value = up-down joystick movmeent
-
-	angle_leftright = PI / 6;	//Graph of y=tan(angle_leftright) used for point turn left/right; MUST BE IN RADIANS
-	angle_updown = PI / 3;	//Graph of y=tan(angle_updown) used for forward/back; MUST BE IN RADIANS
 
 	/*RANGES OF MOTION
 	   Take grid of joystick x-values and y-values, split into twelve 30 degree triangles
@@ -98,23 +90,21 @@ task main()
 	   Depending on triangle, move forwards/backwards/point turn/swing turn
 	 */
 
-	//!! ROBOTC DOES NOT SUPPORT TAN() FUNCTION - Use user-defined function tangentOf(angle_leftright or angle_updown)
-
 	if (!(wheels_x1 < 10 && wheels_x1 > -10 && wheels_y1 < 10 && wheels_y1 > -10)) {	//If in deadzone, ignore movement - no need to run useless code
 
-	    if ((wheels_y1 <= tangentOf(angle_leftright) * wheels_x1) && (wheels_y1 >= -tangentOf(angle_leftright) * wheels_x1)) {	//Check for right movement
+	    if ((wheels_y1 <= tan_angle_leftright * wheels_x1) && (wheels_y1 >= -tan_angle_leftright * wheels_x1)) {	//Check for right movement
 		//Right Point Turn -- Move right tread backwards, left tread forwards
 		left_wheelsPower = WHEELSPEED;
 		right_wheelsPower = -WHEELSPEED;
-	    } else if ((wheels_y1 >= tangentOf(angle_leftright) * wheels_x1) && (wheels_y1 <= -tangentOf(angle_leftright) * wheels_x1)) {	//Check for left movement
+	    } else if ((wheels_y1 >= tan_angle_leftright * wheels_x1) && (wheels_y1 <= -tan_angle_leftright * wheels_x1)) {	//Check for left movement
 		//Left Point Turn -- Move right tread forwards, left tread backwards
 		left_wheelsPower = -WHEELSPEED;
 		right_wheelsPower = WHEELSPEED;
-	    } else if ((wheels_y1 >= tangentOf(angle_updown) * wheels_x1) && (wheels_y1 >= -tangentOf(angle_updown) * wheels_x1)) {	//Check for up movement
+	    } else if ((wheels_y1 >= tan_angle_updown * wheels_x1) && (wheels_y1 >= -tan_angle_updown * wheels_x1)) {	//Check for up movement
 		//Forward -- Move both treads forwards
 		left_wheelsPower = WHEELSPEED;
 		right_wheelsPower = WHEELSPEED;
-	    } else if ((wheels_y1 <= tangentOf(angle_updown) * wheels_x1) && (wheels_y1 <= -tangentOf(angle_updown) * wheels_x1)) {	//Check for down movement
+	    } else if ((wheels_y1 <= tan_angle_updown * wheels_x1) && (wheels_y1 <= -tan_angle_updown * wheels_x1)) {	//Check for down movement
 		//Backward -- Move both treads backwards
 		left_wheelsPower = -WHEELSPEED;
 		right_wheelsPower = -WHEELSPEED;
