@@ -92,6 +92,10 @@ task main()
 
 	if (!(wheels_x1 < 10 && wheels_x1 > -10 && wheels_y1 < 10 && wheels_y1 > -10)) {	//If in deadzone, ignore movement - no need to run useless code
 
+// FAH - The following code can be simplified quite a bit. Also, it might be nice to have the wheels 
+//       move proportional to the direction of the joystick rather than just the 8 options below.
+//       I'd think that the control would feel less jerky and more natural. Since I haven't driven 
+//       the vehicle, though, you guys will have to figure out which you like best.
 	    if ((wheels_y1 <= tan_angle_leftright * wheels_x1) && (wheels_y1 >= -tan_angle_leftright * wheels_x1)) {	//Check for right movement
 		//Right Point Turn -- Move right tread backwards, left tread forwards
 		left_wheelsPower = WHEELSPEED;
@@ -185,6 +189,10 @@ task main()
 	    position1 = nMotorEncoder[leftArm];
 	    position2 = position1;
 	} else {
+// FAH - I'm not sure that I understand the code below. I was thinking that this
+//       code was to try to hold the arm position steady, but then wouldn't you
+//       correct the position differently depending on whether the arm was too
+//       high or low? Or does gravity prevent it from ever being too high?
 	    position2 = position1;
 	    position1 = nMotorEncoder[leftArm];
 	    if (position1 != position2) {
@@ -203,6 +211,7 @@ task main()
 	//     - opening positions for left/right claws are LCLAWOPEN and RCLAWOPEN
 	//     - closing positions for left/right claws are LCLAWCLOSE and RCLAWCLOSE
 
+// FAH - Should the next line be "if (joy1Btn(7) == 1)" similar to the other code?
 	if (joystick.joy1_Buttons == 7) {
 	    //close left claw
 	    servo[leftClaw] = LCLAWCLOSE;
