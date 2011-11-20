@@ -49,10 +49,10 @@ task main()
     initialize(LCLAWOPEN, RCLAWOPEN);
 
     //Used for calculating size of triangle of motion that will define point turning left/right
-    float tan_angle_leftright = 1.0 / sqrt(3); // tan(PI / 6);	//Graph of y=tan(angle_leftright) used for point turn left/right; MUST BE IN RADIANS
+    float tan_angle_leftright = 1.0 / sqrt(3); // tan(PI / 6), Graph of y=tan(angle_leftright) used for point turn left/right; MUST BE IN RADIANS
 
     //Used for calculating size of triangle of motion that will define moving forward/back
-    float tan_angle_updown = sqrt(3);          // tan(PI / 3);	//Graph of y=tan(angle_updown) used for forward/back; MUST BE IN RADIANS
+    float tan_angle_updown = sqrt(3);          // tan(PI / 3), Graph of y=tan(angle_updown) used for forward/back; MUST BE IN RADIANS
 
 
     while (true) {
@@ -82,6 +82,9 @@ task main()
 	wheels_x1 = joystick.joy1_x1;	//x-value = left-right joystick movement
 	wheels_y1 = joystick.joy1_y1;	//y-value = up-down joystick movmeent
 
+	float tan_line_updown = abs(tan_angle_updown * wheels_x1);
+	float tan_line_leftright = tan_angle_leftright * wheels_x1;
+
 	/*RANGES OF MOTION
 	   Take grid of joystick x-values and y-values, split into twelve 30 degree triangles
 	   Use graphs of y=tan(30)x, y=-tan(30)x, y=tan(60)x, y=-tan(60)x  -
@@ -90,57 +93,61 @@ task main()
 	   Depending on triangle, move forwards/backwards/point turn/swing turn
 	 */
 
-	if (!(wheels_x1 < 10 && wheels_x1 > -10 && wheels_y1 < 10 && wheels_y1 > -10)) {	//If in deadzone, ignore movement - no need to run useless code
+if (joy1Btn(3) == 1){        // SWITCH BETWEEN FIXED DRIVE SPEED AND PROPORTIONAL (TO JOYSTICK POSITITION) DRIVE SPEED MODES (awkward tabbing on purpose for easy deletion once one mode is settled on)
 
-// FAH - The following code can be simplified quite a bit. Also, it might be nice to have the wheels 
-//       move proportional to the direction of the joystick rather than just the 8 options below.
-//       I'd think that the control would feel less jerky and more natural. Since I haven't driven 
-//       the vehicle, though, you guys will have to figure out which you like best.
-	    if ((wheels_y1 <= tan_angle_leftright * wheels_x1) && (wheels_y1 >= -tan_angle_leftright * wheels_x1)) {	//Check for right movement
-		//Right Point Turn -- Move right tread backwards, left tread forwards
-		left_wheelsPower = WHEELSPEED;
-		right_wheelsPower = -WHEELSPEED;
-	    } else if ((wheels_y1 >= tan_angle_leftright * wheels_x1) && (wheels_y1 <= -tan_angle_leftright * wheels_x1)) {	//Check for left movement
-		//Left Point Turn -- Move right tread forwards, left tread backwards
-		left_wheelsPower = -WHEELSPEED;
-		right_wheelsPower = WHEELSPEED;
-	    } else if ((wheels_y1 >= tan_angle_updown * wheels_x1) && (wheels_y1 >= -tan_angle_updown * wheels_x1)) {	//Check for up movement
-		//Forward -- Move both treads forwards
-		left_wheelsPower = WHEELSPEED;
-		right_wheelsPower = WHEELSPEED;
-	    } else if ((wheels_y1 <= tan_angle_updown * wheels_x1) && (wheels_y1 <= -tan_angle_updown * wheels_x1)) {	//Check for down movement
-		//Backward -- Move both treads backwards
-		left_wheelsPower = -WHEELSPEED;
-		right_wheelsPower = -WHEELSPEED;
-	    } else {		//If NOT forward/backward/point turn, then swing turn
-		//CHECK WHICH QUADRANT VALUES ARE IN
-		//Swing turn depending on which quadrant values are in
-		if (wheels_x1 > 0 && wheels_y1 > 0) {
-		    //SWING TURN RIGHT
-		    left_wheelsPower = WHEELSPEED;
-		    right_wheelsPower = WHEELSPEED / 2;
-
-		} else if (wheels_x1 < 0 && wheels_y1 > 0) {
-		    //SWING TURN LEFT
-		    left_wheelsPower = WHEELSPEED / 2;
-		    right_wheelsPower = WHEELSPEED;
-
-		} else if (wheels_x1 < 0 && wheels_y1 < 0) {
-		    //SWING TURN BACKWARDS LEFT
-		    left_wheelsPower = -WHEELSPEED / 2;
-		    right_wheelsPower = -WHEELSPEED;
-
-		} else {
-		    //SWING TURN BACKWARDS RIGHT
-		    left_wheelsPower = -WHEELSPEED;
-		    right_wheelsPower = -WHEELSPEED / 2;
+	if (wheels_x1 > abs(10) && wheels_y1 > abs(10)) {	//If in deadzone, ignore movement - no need to run useless code
+		if (wheels_y1 >= tan_line_updown || wheels_y1 <= -tan_line_updown){             //IF JOYSTICK UP/DOWN
+			//MOVE FORWARD/BACKWARD DEPENDING ON WHETHER wheels_y1 IS + OR -
+			left_wheelsPower = (wheels_y1/abs(wheels_y1)) * WHEELSPEED;
+			right_wheelsPower = (wheels_y1/abs(wheels_y1)) * WHEELSPEED;
+		}else if ((wheels_y1 >= tan_line_leftright && wheels_y1 >= -tan_line_leftright) || (wheels_y1 <= tan_line_leftright && wheels_y1 <= -tan_line_leftright){  //IF JOYSTICK LEFT/RIGHT
+			//POINT TURN LEFT/RIGHT DEPENDING ON WHETHER wheels_x1 IS + OR -
+			left_wheelsPower = (wheels_x1/abs(wheels_x1)) * WHEELSPEED;
+			right_wheelsPower = -(wheels_x1/abs(wheels_x1)) * WHEELSPEED;
+		}else{ 										//IF NONE OF THE ABOVE
+			if (wheels_x1 > 0){
+				//FORWARD OR BACKWARD SWING TURN RIGHT DEPENDING ON WHETHER wheels_y1 IS + OR -
+				left_wheelsPower = (wheels_y1/abs(wheels_y1)) * WHEELSPEED;
+				right_wheelsPower = 0;
+			} else{
+				//FORWARD OR BACKWARD SWING TURN LEFT DEPENDING ON WHETHER wheels_y1 IS + OR -
+				left_wheelsPower = 0;
+				right_wheelsPower = (wheels_y1/abs(wheels_y1)) * WHEELSPEED;
+			}
 		}
-	    }
-
-	} else {		//Joystick is in dead zone - set powers to zero
-	    left_wheelsPower = 0;
-	    right_wheelsPower = 0;
+	}else {		 //Joystick is in dead zone - set powers to zero
+	   		 left_wheelsPower = 0;
+	   		 right_wheelsPower = 0;
 	}
+
+}else if (joy1Btn(4) == 1){
+
+	if (wheels_x1 > abs(10) && wheels_y1 > abs(10)) {	//If in deadzone, ignore movement - no need to run useless code
+		if (wheels_y1 >= tan_line_updown || wheels_y1 <= -tan_line_updown){             //IF JOYSTICK UP/DOWN
+			//MOVE FORWARD/BACKWARD DEPENDING ON WHETHER wheels_y1 IS + OR -
+			left_wheelsPower = (int)(wheels_y1/1.27);
+			right_wheelsPower = (int)(wheels_y1/1.27);
+		}else if ((wheels_y1 >= tan_line_leftright && wheels_y1 >= -tan_line_leftright) || (wheels_y1 <= tan_line_leftright && wheels_y1 <= -tan_line_leftright){  //IF JOYSTICK LEFT/RIGHT
+			//POINT TURN LEFT/RIGHT DEPENDING ON WHETHER wheels_x1 IS + OR -
+			left_wheelsPower = (int)(wheels_x1/1.27);
+			right_wheelsPower = -(int)(wheels_x1/1.27);
+		}else{ 										//IF NONE OF THE ABOVE
+			if (wheels_x1 > 0){
+				//FORWARD OR BACKWARD SWING TURN RIGHT DEPENDING ON WHETHER wheels_y1 IS + OR -
+				left_wheelsPower = (int)(wheels_y1/1.27);
+				right_wheelsPower = 0;
+			} else{
+				//FORWARD OR BACKWARD SWING TURN LEFT DEPENDING ON WHETHER wheels_y1 IS + OR -
+				left_wheelsPower = 0;
+				right_wheelsPower = (int)(wheels_y1/1.27);
+			}
+		}
+	}else {		 //Joystick is in dead zone - set powers to zero
+	   		 left_wheelsPower = 0;
+	   		 right_wheelsPower = 0;
+	}
+
+}
 
 	//Drive Code
 	motor[frontLeftWheel] = left_wheelsPower;
@@ -162,43 +169,49 @@ task main()
 	//Secondary Objective:
 	//     - see if you can find a way to get the arms to rotate to a predetermined position and then stop
 
-	if (joy1Btn(5) == 1 || joy1Btn(6) == 1) {
-	    if (servo[leftClaw] == LCLAWCLOSE) {
+	if (joy1Btn(5) == 1 || joy1Btn(6) == 1) {        //IF ARM IS SUPPOSED TO BE MOVING...
+	    if (servo[leftClaw] == LCLAWCLOSE) {             //IF HOLDING A BOX...
 		if (joy1Btn(5) == 1) {
+		    //MOVE ARM UP 80% POWER
 		    motor[leftArm] = -ARMSPEED * 4;
 		    motor[rightArm] = -ARMSPEED * 4;
 		} else if (joy1Btn(6) == 1) {
+		    //MOVE ARM DOWN 80% POWER
 		    motor[leftArm] = ARMSPEED;
 		    motor[rightArm] = ARMSPEED;
 		} else {
+		    //DON'T MOVE ARM
 		    motor[leftArm] = 0;
 		    motor[rightArm] = 0;
 		}
-	    } else {
+	    } else {                                         //IF NOT HOLDING A BOX...
 		if (joy1Btn(5) == 1) {
+		    //MOVE ARM UP 20% POWER
 		    motor[leftArm] = -ARMSPEED;
 		    motor[rightArm] = -ARMSPEED;
 		} else if (joy1Btn(6) == 1) {
+		    //MOVE ARM DOWN 20% POWER
 		    motor[leftArm] = ARMSPEED;
 		    motor[rightArm] = ARMSPEED;
 		} else {
+		    //DON'T MOVE ARM
 		    motor[leftArm] = 0;
 		    motor[rightArm] = 0;
 		}
 	    }
+	    //UPDATE ENCODER VALUES (MOTOR POSITION)
 	    position1 = nMotorEncoder[leftArm];
 	    position2 = position1;
-	} else {
-// FAH - I'm not sure that I understand the code below. I was thinking that this
-//       code was to try to hold the arm position steady, but then wouldn't you
-//       correct the position differently depending on whether the arm was too
-//       high or low? Or does gravity prevent it from ever being too high?
-	    position2 = position1;
+	} else {                                        //IF ARM ISN'T SUPPOSED TO BE MOVING...
+	    position2 = position1;                      //COMPARE CURRENT MOTOR POSITION WITH PREVIOUS POSITION. ARE THEY THE SAME?
 	    position1 = nMotorEncoder[leftArm];
-	    if (position1 != position2) {
+	    if (position1 > position2) {                     //NO, CURRENT POSIITON IS LOWER THAN PREVIOUS POSITION, MOVE ARM UP
 		motor[leftArm] = -ARMSPEED * 4;
 		motor[rightArm] = -ARMSPEED * 4;
-	    }
+	    }else if (position1 < position2) {               //NO, CURRENT POSITION IS HIGHER THAN PREVIOUS POSIITON, MOVE ARM DOWN
+		motor[leftArm] = ARMSPEED * 4;
+		motor[rightArm] = ARMSPEED * 4;
+	    }                                                //YES, DO NOTHING
 	}
 
 	//------------------------------------
@@ -211,15 +224,12 @@ task main()
 	//     - opening positions for left/right claws are LCLAWOPEN and RCLAWOPEN
 	//     - closing positions for left/right claws are LCLAWCLOSE and RCLAWCLOSE
 
-// FAH - Should the next line be "if (joy1Btn(7) == 1)" similar to the other code?
-	if (joystick.joy1_Buttons == 7) {
+	if (joy1Btn(7) == 1) {
 	    //close left claw
 	    servo[leftClaw] = LCLAWCLOSE;
 	    //close right claw
 	    servo[rightClaw] = RCLAWCLOSE;
-	}
-
-	if (joystick.joy1_Buttons == 8) {
+	}else if (joy1Btn(8) == 1) {
 	    //open left claw
 	    servo[leftClaw] = LCLAWOPEN;
 	    //open right claw
