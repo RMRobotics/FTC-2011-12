@@ -100,7 +100,7 @@ if (joy1Btn(3) == 1){        // SWITCH BETWEEN FIXED DRIVE SPEED AND PROPORTIONA
 			//MOVE FORWARD/BACKWARD DEPENDING ON WHETHER wheels_y1 IS + OR -
 			left_wheelsPower = (wheels_y1/abs(wheels_y1)) * WHEELSPEED;
 			right_wheelsPower = (wheels_y1/abs(wheels_y1)) * WHEELSPEED;
-		}else if ((wheels_y1 >= tan_line_leftright && wheels_y1 >= -tan_line_leftright) || (wheels_y1 <= tan_line_leftright && wheels_y1 <= -tan_line_leftright){  //IF JOYSTICK LEFT/RIGHT
+		}else if ((wheels_y1 >= tan_line_leftright && wheels_y1 >= -tan_line_leftright) || (wheels_y1 <= tan_line_leftright && wheels_y1 <= -tan_line_leftright)){  //IF JOYSTICK LEFT/RIGHT
 			//POINT TURN LEFT/RIGHT DEPENDING ON WHETHER wheels_x1 IS + OR -
 			left_wheelsPower = (wheels_x1/abs(wheels_x1)) * WHEELSPEED;
 			right_wheelsPower = -(wheels_x1/abs(wheels_x1)) * WHEELSPEED;
@@ -127,7 +127,7 @@ if (joy1Btn(3) == 1){        // SWITCH BETWEEN FIXED DRIVE SPEED AND PROPORTIONA
 			//MOVE FORWARD/BACKWARD DEPENDING ON WHETHER wheels_y1 IS + OR -
 			left_wheelsPower = (int)(wheels_y1/1.27);
 			right_wheelsPower = (int)(wheels_y1/1.27);
-		}else if ((wheels_y1 >= tan_line_leftright && wheels_y1 >= -tan_line_leftright) || (wheels_y1 <= tan_line_leftright && wheels_y1 <= -tan_line_leftright){  //IF JOYSTICK LEFT/RIGHT
+		}else if ((wheels_y1 >= tan_line_leftright && wheels_y1 >= -tan_line_leftright) || (wheels_y1 <= tan_line_leftright && wheels_y1 <= -tan_line_leftright)){  //IF JOYSTICK LEFT/RIGHT
 			//POINT TURN LEFT/RIGHT DEPENDING ON WHETHER wheels_x1 IS + OR -
 			left_wheelsPower = (int)(wheels_x1/1.27);
 			right_wheelsPower = -(int)(wheels_x1/1.27);
