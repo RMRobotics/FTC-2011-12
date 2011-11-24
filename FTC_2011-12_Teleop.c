@@ -42,6 +42,15 @@ void initialize(int lOpen, int rOpen)
     servo[rightClaw] = rOpen;
 }
 
+bool mode (bool fixedSpeed)
+{
+    if(fixedSpeed==true)
+      return false;
+    else
+      return true;
+}
+
+
 task main()
 {
     int position1 = 0;
@@ -78,6 +87,7 @@ task main()
 	int wheels_y1;
 	int left_wheelsPower;
 	int right_wheelsPower;
+	bool fixedSpeed = true;
 
 	wheels_x1 = joystick.joy1_x1;	//x-value = left-right joystick movement
 	wheels_y1 = joystick.joy1_y1;	//y-value = up-down joystick movmeent
@@ -93,7 +103,10 @@ task main()
 	   Depending on triangle, move forwards/backwards/point turn/swing turn
 	 */
 
-if (joy1Btn(3) == 1){        // SWITCH BETWEEN FIXED DRIVE SPEED AND PROPORTIONAL (TO JOYSTICK POSITITION) DRIVE SPEED MODES (awkward tabbing on purpose for easy deletion once one mode is settled on)
+if(joy1Btn(3)==1)
+  mode(fixedSpeed);
+
+if(fixedSpeed==true){
 
 	if (wheels_x1 > abs(10) && wheels_y1 > abs(10)) {	//If in deadzone, ignore movement - no need to run useless code
 		if (wheels_y1 >= tan_line_updown || wheels_y1 <= -tan_line_updown){             //IF JOYSTICK UP/DOWN
@@ -120,7 +133,7 @@ if (joy1Btn(3) == 1){        // SWITCH BETWEEN FIXED DRIVE SPEED AND PROPORTIONA
 	   		 right_wheelsPower = 0;
 	}
 
-}else if (joy1Btn(4) == 1){
+}else{
 
 	if (wheels_x1 > abs(10) && wheels_y1 > abs(10)) {	//If in deadzone, ignore movement - no need to run useless code
 		if (wheels_y1 >= tan_line_updown || wheels_y1 <= -tan_line_updown){             //IF JOYSTICK UP/DOWN
