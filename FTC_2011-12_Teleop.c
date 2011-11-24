@@ -92,7 +92,7 @@ task main()
 	wheels_x1 = joystick.joy1_x1;	//x-value = left-right joystick movement
 	wheels_y1 = joystick.joy1_y1;	//y-value = up-down joystick movmeent
 
-	float tan_line_updown = abs(tan_angle_updown * wheels_x1);
+	float tan_line_updown = tan_angle_updown * wheels_x1;
 	float tan_line_leftright = tan_angle_leftright * wheels_x1;
 
 	/*RANGES OF MOTION
@@ -108,7 +108,50 @@ if(joy1Btn(3)==1)
 
 if(fixedSpeed==true){
 
-	if (wheels_x1 > abs(10) && wheels_y1 > abs(10)) {	//If in deadzone, ignore movement - no need to run useless code
+	if (abs(wheels_x1) > 10 && abs(wheels_y1) > 10) {	//If in deadzone, ignore movement - no need to run useless code
+		if (wheels_y1 <= tan_line_leftright) {
+			//Must be either Right Point, Right Back Swing, Backwards, or Left Back Swing
+			//!IMPORTANT: Code works by order, so code CANNOT be merged unless order is followed
+			if (wheels_y1 >= -tan_line_leftright) {
+				//Right Point Turn -- Move right tread backwards, left tread forwards
+				left_wheelsPower = WHEELSPEED;
+				right_wheelsPower = -WHEELSPEED;
+			} else if (wheels_y1 >= -tan_line_updown) {
+				//Swing Turn Backwards Right
+				left_wheelsPower = -WHEELSPEED;
+				right_wheelsPower = -WHEELSPEED / 2;
+			} else if (wheels_y1 <= tan_line_updown) {
+				//Backward -- Move both treads backwards
+				left_wheelsPower = -WHEELSPEED;
+				right_wheelsPower = -WHEELSPEED;
+			} else {
+				//Swing Turn Backwards Left
+				left_wheelsPower = -WHEELSPEED / 2;
+				right_wheelsPower = -WHEELSPEED;
+			}
+		else {
+			//Must be either Left Point, Left Swing, Forwards, or Right Swing
+			//!IMPORTANT: Code works by order, so code CANNOT be merged unless order is followed
+			if (wheels_y1 <= -tan_line_leftright) {
+				//Left Point Turn -- Move right tread forwards, left tread backwards
+				left_wheelsPower = -WHEELSPEED;
+				right_wheelsPower = WHEELSPEED;
+			} else if (wheels_y1 <= -tan_line_updown) {
+				//Swing Turn Left
+				left_wheelsPower = WHEELSPEED / 2;
+				right_wheelsPower = WHEELSPEED;
+			} else if (wheels_y1 >= tan_line_updown) {
+				//Forward -- Move both treads forwards
+				left_wheelsPower = WHEELSPEED;
+				right_wheelsPower = WHEELSPEED;
+			} else {
+				//Swing Turn Right
+				left_wheelsPower = WHEELSPEED;
+				right_wheelsPower = WHEELSPEED / 2;
+			}
+		}
+
+		/*
 		if (wheels_y1 >= tan_line_updown || wheels_y1 <= -tan_line_updown){             //IF JOYSTICK UP/DOWN
 			//MOVE FORWARD/BACKWARD DEPENDING ON WHETHER wheels_y1 IS + OR -
 			left_wheelsPower = (wheels_y1/abs(wheels_y1)) * WHEELSPEED;
@@ -127,7 +170,9 @@ if(fixedSpeed==true){
 				left_wheelsPower = 0;
 				right_wheelsPower = (wheels_y1/abs(wheels_y1)) * WHEELSPEED;
 			}
-		}
+		} */
+		
+		
 	}else {		 //Joystick is in dead zone - set powers to zero
 	   		 left_wheelsPower = 0;
 	   		 right_wheelsPower = 0;
@@ -135,7 +180,51 @@ if(fixedSpeed==true){
 
 }else{
 
-	if (wheels_x1 > abs(10) && wheels_y1 > abs(10)) {	//If in deadzone, ignore movement - no need to run useless code
+	if (abs(wheels_x1) > 10 && abs(wheels_y1) > 10) {	//If in deadzone, ignore movement - no need to run useless code
+		if (wheels_y1 <= tan_line_leftright) {
+			//Must be either Right Point, Right Back Swing, Backwards, or Left Back Swing
+			//!IMPORTANT: Code works by order, so code CANNOT be merged unless order is followed
+			if (wheels_y1 >= -tan_line_leftright) {
+				//Right Point Turn -- Move right tread backwards, left tread forwards
+				left_wheelsPower = (int)(wheels_x1/1.27);
+				right_wheelsPower = -(int)(wheels_x1/1.27);
+			} else if (wheels_y1 >= -tan_line_updown) {
+				//Swing Turn Backwards Right
+				left_wheelsPower = (int)(wheels_y1/1.27);
+				right_wheelsPower = 0;
+			} else if (wheels_y1 <= tan_line_updown) {
+				//Backward -- Move both treads backwards
+				left_wheelsPower = (int)(wheels_y1/1.27);
+				right_wheelsPower = (int)(wheels_y1/1.27);
+			} else {
+				//Swing Turn Backwards Left
+				left_wheelsPower = 0;
+				right_wheelsPower = (int)(wheels_y1/1.27);
+			}
+		} else {
+			//Must be either Left Point, Left Swing, Forwards, or Right Swing
+			//!IMPORTANT: Code works by order, so code CANNOT be merged unless order is followed
+			if (wheels_y1 <= -tan_line_leftright) {
+				//Left Point Turn -- Move right tread forwards, left tread backwards
+				left_wheelsPower = (int)(wheels_x1/1.27);
+				right_wheelsPower = -(int)(wheels_x1/1.27);
+			} else if (wheels_y1 <= -tan_line_updown) {
+				//Swing Turn Left
+				left_wheelsPower = 0;
+				right_wheelsPower = (int)(wheels_y1/1.27);
+			} else if (wheels_y1 >= tan_line_updown) {
+				//Forward -- Move both treads forwards
+				left_wheelsPower = (int)(wheels_y1/1.27);
+				right_wheelsPower = (int)(wheels_y1/1.27);
+			} else {
+				//Swing Turn Right
+				left_wheelsPower = (int)(wheels_y1/1.27);
+				right_wheelsPower = 0;
+			}
+		}
+	
+	
+		/*
 		if (wheels_y1 >= tan_line_updown || wheels_y1 <= -tan_line_updown){             //IF JOYSTICK UP/DOWN
 			//MOVE FORWARD/BACKWARD DEPENDING ON WHETHER wheels_y1 IS + OR -
 			left_wheelsPower = (int)(wheels_y1/1.27);
@@ -154,12 +243,15 @@ if(fixedSpeed==true){
 				left_wheelsPower = 0;
 				right_wheelsPower = (int)(wheels_y1/1.27);
 			}
-		}
-	}else {		 //Joystick is in dead zone - set powers to zero
+		} 
+		*/
+		
+		
+	} else {		 //Joystick is in dead zone - set powers to zero
 	   		 left_wheelsPower = 0;
 	   		 right_wheelsPower = 0;
 	}
-
+	
 }
 
 	//Drive Code
