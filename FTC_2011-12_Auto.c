@@ -55,13 +55,16 @@ task main(){
 		offset_right = -1;
 		
 		//11) Move backward until (offset=(Two Feet Six Inches))
+		//OR Move backward (Two Feet Four Inches)
+		//Robot will move into RED Low Zone
 		
 		//12) Point Turn 90 degrees
 		
 		//13) Measure offset
 		offset_back = -1;
 		
-		//14) Move until (offset=(Ten Feet Six Inches)-(half the robot's length)
+		//14) Move until (offset=(Ten Feet Six Inches)-(half the robot's length))
+		//OR Move forward (Nine Feet Eight Inches)
 		
 		//15) Point Turn 90 Degrees
 		
