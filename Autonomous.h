@@ -2,7 +2,7 @@
 
 #define WHEELSPEED 75
 #define ARMSPEED 20
-#define TREADSPEED 20
+#define TREADSPEED 50
 #define LCLAWOPEN 127
 #define LCLAWCLOSE 255
 #define RCLAWOPEN 128
