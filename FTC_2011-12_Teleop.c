@@ -1,12 +1,13 @@
 #pragma config(Hubs,  S1, HTMotor,  HTMotor,  HTMotor,  HTServo)
+#pragma config(Sensor, S1,     ,                    sensorI2CMuxController)
 #pragma config(Motor,  motorA,          frontTread,    tmotorNormal, PIDControl, encoder)
 #pragma config(Motor,  motorB,          backTread,     tmotorNormal, PIDControl, encoder)
 #pragma config(Motor,  mtr_S1_C1_1,     frontLeftWheel, tmotorNormal, openLoop, reversed)
 #pragma config(Motor,  mtr_S1_C1_2,     frontRightWheel, tmotorNormal, openLoop)
-#pragma config(Motor,  mtr_S1_C2_1,     backLeftWheel, tmotorNormal, openLoop, reversed)
-#pragma config(Motor,  mtr_S1_C2_2,     backRightWheel, tmotorNormal, openLoop)
-#pragma config(Motor,  mtr_S1_C3_1,     leftArm,       tmotorNormal, PIDControl, reversed, encoder)
-#pragma config(Motor,  mtr_S1_C3_2,     rightArm,      tmotorNormal, openLoop)
+#pragma config(Motor,  mtr_S1_C2_1,     backRightWheel, tmotorNormal, openLoop)
+#pragma config(Motor,  mtr_S1_C2_2,     backLeftWheel, tmotorNormal, openLoop, reversed)
+#pragma config(Motor,  mtr_S1_C3_1,     leftArm,       tmotorNormal, openLoop, reversed)
+#pragma config(Motor,  mtr_S1_C3_2,     rightArm,      tmotorNormal, PIDControl, encoder)
 #pragma config(Servo,  srvo_S1_C4_1,    leftClaw,             tServoStandard)
 #pragma config(Servo,  srvo_S1_C4_2,    rightClaw,            tServoStandard)
 #pragma config(Servo,  srvo_S1_C4_3,    servo3,               tServoNone)
@@ -20,7 +21,7 @@
 //-----------Constants------------------
 #define WHEELSPEED 75
 #define ARMSPEED 20
-#define TREADSPEED 20
+#define TREADSPEED 50
 #define LCLAWOPEN 127
 #define LCLAWCLOSE 255
 #define RCLAWOPEN 128
@@ -37,20 +38,18 @@ void initialize()
   motor[backRightWheel] = 0;
   motor[leftArm] = 0;
   motor[rightArm] = 0;
-  nMotorEncoder[leftArm] = 0;
+  nMotorEncoder[rightArm] = 0;
   servo[leftClaw] = LCLAWOPEN;
   servo[rightClaw] = RCLAWOPEN;
   nSyncedMotors = synchAB;
   nSyncedTurnRatio = 100;
   nMotorEncoder[frontTread] = 0;
+  motor[frontTread] = 0;
 }
 
-bool mode (bool fixedSpeed)
+bool mode (bool switchMode)
 {
-  if(fixedSpeed==true)
-    return false;
-  else
-    return true;
+  return !switchMode;
 }
 
 
@@ -59,6 +58,7 @@ task main()
   int position1 = 0;
   int position2 = 0;
   bool fixedSpeed = true;
+  bool treadMaxSpeed = false;
   initialize();
 
   //Used for calculating size of triangle of motion that will define point turning left/right
@@ -70,6 +70,7 @@ task main()
   while (true) {
 
     getJoystickSettings(joystick);
+
 
     //------------Driving-----------------
 
@@ -105,10 +106,11 @@ task main()
     Depending on triangle, move forwards/backwards/point turn/swing turn
     */
 
-    if(joy1Btn(3)==1)
-      mode(fixedSpeed);
+    if (joy1Btn(10) == 1) {
+      fixedSpeed = mode(fixedSpeed);
+    }
 
-    if(fixedSpeed==true){
+    if (fixedSpeed == true){
 
       if (abs(wheels_x1) > 10 && abs(wheels_y1) > 10) {	//If in deadzone, ignore movement - no need to run useless code
         if (wheels_y1 <= tan_line_leftright) {
@@ -121,17 +123,17 @@ task main()
           } else if (wheels_y1 >= -tan_line_updown) {
             //Swing Turn Backwards Right
             left_wheelsPower = -WHEELSPEED;
-            right_wheelsPower = -WHEELSPEED / 2;
+            right_wheelsPower = 0;
           } else if (wheels_y1 <= tan_line_updown) {
             //Backward -- Move both treads backwards
             left_wheelsPower = -WHEELSPEED;
             right_wheelsPower = -WHEELSPEED;
           } else {
             //Swing Turn Backwards Left
-            left_wheelsPower = -WHEELSPEED / 2;
+            left_wheelsPower = 0;
             right_wheelsPower = -WHEELSPEED;
           }
-        }else {
+        } else {
           //Must be either Left Point, Left Swing, Forwards, or Right Swing
           //!IMPORTANT: Code works by order, so code CANNOT be merged unless order is followed
           if (wheels_y1 <= -tan_line_leftright) {
@@ -140,7 +142,7 @@ task main()
             right_wheelsPower = WHEELSPEED;
           } else if (wheels_y1 <= -tan_line_updown) {
             //Swing Turn Left
-            left_wheelsPower = WHEELSPEED / 2;
+            left_wheelsPower = 0;
             right_wheelsPower = WHEELSPEED;
           } else if (wheels_y1 >= tan_line_updown) {
             //Forward -- Move both treads forwards
@@ -149,15 +151,15 @@ task main()
           } else {
             //Swing Turn Right
             left_wheelsPower = WHEELSPEED;
-            right_wheelsPower = WHEELSPEED / 2;
+            right_wheelsPower = 0;
           }
         }
-      }else {		 //Joystick is in dead zone - set powers to zero
+      } else {		 //Joystick is in dead zone - set powers to zero
         left_wheelsPower = 0;
         right_wheelsPower = 0;
       }
 
-    }else{
+    } else{
 
       if (abs(wheels_x1) > 10 && abs(wheels_y1) > 10) {	//If in deadzone, ignore movement - no need to run useless code
         if (wheels_y1 <= tan_line_leftright) {
@@ -228,7 +230,8 @@ task main()
     //Secondary Objective:
     //     - see if you can find a way to get the arms to rotate to a predetermined position and then stop
 
-    if (joy1Btn(5) == 1 || joy1Btn(6) == 1) {        //IF ARM IS SUPPOSED TO BE MOVING...
+
+    //if (joy1Btn(5) == 1 || joy1Btn(6) == 1) {        //IF ARM IS SUPPOSED TO BE MOVING...
       if (servo[leftClaw] == LCLAWCLOSE) {             //IF HOLDING A BOX...
         if (joy1Btn(5) == 1) {
           //MOVE ARM UP 80% POWER
@@ -259,19 +262,22 @@ task main()
         }
       }
       //UPDATE ENCODER VALUES (MOTOR POSITION)
-      position1 = nMotorEncoder[leftArm];
+      position1 = nMotorEncoder[rightArm];
       position2 = position1;
-    } else {                                        //IF ARM ISN'T SUPPOSED TO BE MOVING...
-      position2 = position1;                      //COMPARE CURRENT MOTOR POSITION WITH PREVIOUS POSITION. ARE THEY THE SAME?
-      position1 = nMotorEncoder[leftArm];
-      if (position1 > position2) {                     //NO, CURRENT POSIITON IS LOWER THAN PREVIOUS POSITION, MOVE ARM UP
+    /*} else {                                        //IF ARM ISN'T SUPPOSED TO BE MOVING...
+      position2 = position1;                        //COMPARE CURRENT MOTOR POSITION WITH PREVIOUS POSITION. ARE THEY THE SAME?
+      position1 = nMotorEncoder[rightArm];
+      if (position1 < (position2-10)) {                     //NO, CURRENT POSIITON IS LOWER THAN PREVIOUS POSITION, MOVE ARM UP
         motor[leftArm] = -ARMSPEED * 4;
         motor[rightArm] = -ARMSPEED * 4;
-      } else if (position1 < position2) {               //NO, CURRENT POSITION IS HIGHER THAN PREVIOUS POSIITON, MOVE ARM DOWN
-        motor[leftArm] = ARMSPEED * 4;
-        motor[rightArm] = ARMSPEED * 4;
-      }                                                //YES, DO NOTHING
-    }
+      } else if (position1 > (position2+10)) {              //NO, CURRENT POSITION IS HIGHER THAN PREVIOUS POSIITON, MOVE ARM DOWN
+        motor[leftArm] = ARMSPEED;
+        motor[rightArm] = ARMSPEED;
+      } else {                                              //YES, DO NOTHING
+        motor[leftArm] = 0;
+        motor[rightArm] = 0;
+      }
+    }*/
 
     //------------------------------------
 
@@ -303,13 +309,28 @@ task main()
     //     - if btn 1 is pressed, have tread move forward until btn 2 is pressed.
     //     - tread should move at speed TREADSPEED
 
-    if (joy1Btn(1) == 1 && nMotorEncoder[frontTread] <= 1800) {
-      motor[frontTread] = TREADSPEED;
-    } else if (joy1Btn(2) == 1 && nMotorEncoder[frontTread] >= 0) {
-      motor[frontTread] = -TREADSPEED;
-    } else{
-      motor[frontTread] = 0;
+    if (joy1Btn(9) == 1) {
+      treadMaxSpeed=mode(treadMaxSpeed);
     }
+
+    if (treadMaxSpeed == false){
+      if (joystick.joy1_TopHat == 0 && nMotorEncoder[frontTread] <= 300) {
+        motor[frontTread] = TREADSPEED;
+      } else if (joystick.joy1_TopHat == 4 && nMotorEncoder[frontTread] >= 50) {
+        motor[frontTread] = -TREADSPEED;
+      } else{
+        motor[frontTread] = 0;
+      }
+    } else{
+      if (joystick.joy1_TopHat == 0 && nMotorEncoder[frontTread] <= 215) {
+        motor[frontTread] = TREADSPEED*2;
+      } else if (joystick.joy1_TopHat == 4 && nMotorEncoder[frontTread] >= 100) {
+        motor[frontTread] = -TREADSPEED*2;
+      } else{
+        motor[frontTread] = 0;
+      }
+    }
+
     //------------------------------------
   }
 }
