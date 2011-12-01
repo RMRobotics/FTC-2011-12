@@ -2,7 +2,7 @@
 
 #define WHEELSPEED 75
 #define ARMSPEED 20
-#define TREADSPEED 20
+#define TREADSPEED 50
 #define LCLAWOPEN 127
 #define LCLAWCLOSE 255
 #define RCLAWOPEN 128
@@ -56,4 +56,8 @@ void drive (string auto_command, int time) {
 	motor[frontRightWheel] = right_wheelsPower;
 	motor[backRightWheel] = right_wheelsPower;
 	wait1Msec(time);
+	motor[frontLeftWheel] = 0;
+	motor[backLeftWheel] = 0;
+	motor[frontRightWheel] = 0;
+	motor[backRightWheel] = 0;
 }
