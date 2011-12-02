@@ -34,16 +34,16 @@ void drive (string auto_command, int time) {
 		right_wheelsPower=-WHEELSPEED;
 	}else if(auto_command=="rswing") {	//SWING TURN RIGHT
 		left_wheelsPower=WHEELSPEED;
-		right_wheelsPower=WHEELSPEED/2;
+		right_wheelsPower=0;
 	}else if(auto_command=="lswing") {	//SWING TURN LEFT
-		left_wheelsPower=WHEELSPEED/2;
+		left_wheelsPower=0;
 		right_wheelsPower=WHEELSPEED;
 	}else if(auto_command=="lswingback") {	//SWING TURN BACKWARDS LEFT
-		left_wheelsPower=-WHEELSPEED/2;
+		left_wheelsPower=0;
 		right_wheelsPower=-WHEELSPEED;
 	}else if(auto_command=="rswingback") {	//SWING TURN BACKWARDS RIGHT
 		left_wheelsPower=-WHEELSPEED;
-		right_wheelsPower=-WHEELSPEED/2;
+		right_wheelsPower=0;
 	}else {
 		//Do not move
 		left_wheelsPower=0;
