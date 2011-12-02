@@ -56,4 +56,8 @@ void drive (string auto_command, int time) {
 	motor[frontRightWheel] = right_wheelsPower;
 	motor[backRightWheel] = right_wheelsPower;
 	wait1Msec(time);
+	motor[frontLeftWheel] = 0;
+	motor[backLeftWheel] = 0;
+	motor[frontRightWheel] = 0;
+	motor[backRightWheel] = 0;
 }
