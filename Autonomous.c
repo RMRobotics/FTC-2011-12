@@ -36,25 +36,65 @@ task main(){
 
   //waitForStart();
 
-	string program_type="Red";
+	string program_type="Gandalf";
 	int offset_back = 0;
 	int offset_right = 0;
+	int offset_left = 0;
 	int robot_length = 667; //In milliseconds
 	int distance = 0;
+	int count = 0;
+
+	string BatteryLevel = externalBatteryAvg;
+  string selection = "";
+
+
+  nxtDisplayCenteredBigTextLine (3, BatteryLevel);
+  wait1Msec(3000);
+
+
+	while(nNxtButtonPressed != 3) {
+	    if (nNxtButtonPressed == 1) {
+	      count++;
+	      if (count == 4) {
+	        count = 1;
+	      }
+	    }
+
+	    if (count == 1) {
+	      program_type="Red";
+	    }else if (count == 2) {
+	      program_type="Blu";
+	    }else if (count == 3) {
+	      program_type ="Gandalf";
+	    }
+	    selection = program_type + " " + "Picked";
+	    nxtDisplayCenteredTextLine(5, selection);
+
+	    wait1Msec(3000);
+}
+
+selection = program_type + " " + "Selected";
+nxtDisplayCenteredTextLine(5, selection);
+
+wait1Msec(3000);
+
+waitForStart();
+
 
 	if (program_type=="Red") {
-		//1) Measure offset from walls
+    nxtDisplayCenteredTextLine (3, "R: LEFT.");
+
+	  //1) Measure offset from walls
 		//!IMPORTANT START ROBOT SIDEWAYS facing left to reduce time it takes to measure
-		//!IMPORTANT Ultrasonic measurer should be placed facing the back with the edge lined up with the robot's back
 		//Convert offset distance into milliseconds
 
 	  //Measure
-		offset_right = SensorValue[sonarSensor];
+		offset_right = (SensorValue[sonarSensor]/60.96) * 1000;
 		// Turn right 90 degreees
 		distance = 750;
 		drive("rpoint", distance);
 		//Remeasure
-		offset_back = SensorValue[sonarSensor];
+		offset_back = (SensorValue[sonarSensor]/60.96) * 1000;
 
 
 		//2) Move forward ((Four Feet Seven Inches=139.7 cm)-offset_back)
@@ -77,9 +117,9 @@ task main(){
     distance = 280.833333;
     drive("lpoint", distance);
 
-		//6) Move forward ((Nine Feet Two Inches=279.4 cm)-(the robot's length))
+		//6) Move forward ((Seven Feet 2.5 Inches=219.71 cm)-(the robot's length))
 
-    distance = 4583.333333 - robot_length;
+    distance = 3604.1666666 - robot_length;
     drive("up", distance);
 
 		//7) Pause 1 second
@@ -97,7 +137,7 @@ task main(){
     drive("rpoint", distance);
 
 		//10) Measure offset from RED base wall (should be from 5' - 7' = 152.4-213.36 cm)
-		offset_right = SensorValue[sonarSensor]/60.96;
+		offset_right = (SensorValue[sonarSensor]/60.96) * 1000;
 
 		//11) Move backward until (offset=(Two Feet Six Inches = 76.2 cm))
 		//OR Move backward (Two Feet Four Inches = 71.12 cm)
@@ -117,7 +157,7 @@ task main(){
 		drive("rpoint", distance);
 
 		//13) Measure offset
-		offset_back = SensorValue[sonarSensor]/60.96;
+		offset_back = (SensorValue[sonarSensor]/60.96) * 1000;
 
 		//14) Move until (offset=(Ten Feet Six Inches = 320.04 cm)-(half the robot's length))
 		//OR Move forward (Nine Feet Eight Inches = 294.64 cm)
@@ -140,6 +180,111 @@ task main(){
 		distance = 2750;
 		drive("up", distance);
 
-  }
+  }else if (program_type == "Blu") {
+    nxtDisplayCenteredTextLine (3, "B: RIGHT.");
 
+    //1) Measure offset from walls
+		//!IMPORTANT START ROBOT SIDEWAYS facing right to reduce time it takes to measure
+		//Convert offset distance into milliseconds
+
+	  //Measure
+		offset_left = (SensorValue[sonarSensor]/60.96) * 1000;
+		// Turn left 90 degreees
+		distance = 750;
+		drive("lpoint", distance);
+		//Remeasure
+		offset_back = (SensorValue[sonarSensor]/60.96) * 1000;
+
+
+		//2) Move forward ((Four Feet Seven Inches=139.7 cm)-offset_back)
+
+		distance = 2291.66666 - offset_back;
+		drive("up", distance);
+
+		//3) Point turn 90 degrees
+
+		distance = 750;
+    drive("rpoint", distance);
+
+		//4) Move forward ((Four Feet Eight Inches=142.24 cm)-(the robot's length)-offset_left)
+
+    distance = 2333.333333 - robot_length - offset_left;
+    drive("up", distance);
+
+		//5) Point turn 33.7 degrees
+
+    distance = 280.833333;
+    drive("rpoint", distance);
+
+		//6) Move forward ((Seven Feet 2.5 inches=219.71 cm)-(the robot's length))
+
+    distance = 3604.1666666 - robot_length;
+    drive("up", distance);
+
+		//7) Pause 1 second
+
+    wait1Msec(1000);
+
+		//8) Move backward (Three Inches=7.62 cm)
+
+    distance = 125;
+    drive("down", distance);
+
+		//9) Point turn -123.7 degrees
+
+    distance = 2144.1333333;
+    drive("lpoint", distance);
+
+		//10) Measure offset from left wall
+		offset_left = (SensorValue[sonarSensor]/60.96) * 1000;
+
+		//11) Move forward until (offset=(Five Feet Six Inches = 167.64 cm))
+		//until (offset=(Two Feet Six Inches = 76.2 cm))
+		//OR Move forward (167.64 cm - offset_left)
+		//Robot will move into RED Low Zone
+
+		//while offset_left > 1843 {
+		//  drive("down", 500);
+		//  offset_left = SensorValue[sonarSensor]/60.96;
+		//}
+		//OR
+		distance = 2750 - offset_left;
+		drive("down", distance);
+
+		//12) Point Turn -90 degrees
+
+		distance = 750;
+		drive("lpoint", distance);
+
+		//13) Measure offset
+		offset_back = (SensorValue[sonarSensor]/60.96) * 1000;
+
+		//14) Move until (offset=(Ten Feet Six Inches = 320.04 cm)-(half the robot's length))
+		//OR Move forward (Nine Feet Eight Inches = 294.64 cm)
+
+		//while offset_back > 5250 {
+		//  drive("up", 500);
+		//  offset_left = SensorValue[sonarSensor]/60.96;
+	  //}
+		//OR
+		distance = 4833.33333;
+		drive("up", distance);
+
+		//15) Point Turn 90 Degrees
+
+		distance = 750;
+		drive("rpoint", distance);
+
+		//16) Move forward (Five Feet Six Inches = 167.64 cm)
+
+		distance = 2750;
+		drive("up", distance);
+  }else if (program_type == "Gandalf") {
+    nxtDisplayCenteredTextLine(3, "G: BACK");
+
+    offset_back = (SensorValue[sonarSensor]/60.96) * 1000;
+
+    distance = 5700 - offset_back;
+
+  }
 }

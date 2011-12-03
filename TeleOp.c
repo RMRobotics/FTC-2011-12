@@ -46,6 +46,15 @@ void initialize()
   nSyncedTurnRatio = 100;
   motor[frontTread] = 0;
   nMotorEncoder[frontTread] = 0;
+
+  string BatteryLevel = externalBatteryAvg;
+
+  nxtDisplayCenteredBigTextLine (3, BatteryLevel);
+
+  wait1Msec(5000);
+
+  nxtDisplayCenteredBigTextLine (3, "Teleop Running.");
+
 }
 
 bool mode (bool switchMode)
