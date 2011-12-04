@@ -10,7 +10,7 @@
 #pragma config(Motor,  mtr_S1_C3_2,     rightArm,      tmotorNormal, PIDControl, encoder)
 #pragma config(Servo,  srvo_S1_C4_1,    leftClaw,             tServoStandard)
 #pragma config(Servo,  srvo_S1_C4_2,    rightClaw,            tServoStandard)
-#pragma config(Servo,  srvo_S1_C4_3,    servo3,               tServoNone)
+#pragma config(Servo,  srvo_S1_C4_3,    beefyMcServo,         tServoStandard)
 #pragma config(Servo,  srvo_S1_C4_4,    servo4,               tServoNone)
 #pragma config(Servo,  srvo_S1_C4_5,    servo5,               tServoNone)
 #pragma config(Servo,  srvo_S1_C4_6,    servo6,               tServoNone)
@@ -20,12 +20,14 @@
 
 //-----------Constants------------------
 #define WHEELSPEED 75
-#define ARMSPEED 20
+#define ARMSPEED 30
 #define TREADSPEED 50
 #define LCLAWOPEN 127
 #define LCLAWCLOSE 255
 #define RCLAWOPEN 128
 #define RCLAWCLOSE 0
+#define BEEFYMCSERVOOUT 180
+#define BEEFYMCSERVOIN 240
 //--------------------------------------
 // when give your motors/servos values, use these constants, not numbers
 // so that if we need to change them, they're easy to access
@@ -46,6 +48,16 @@ void initialize()
   nSyncedTurnRatio = 100;
   motor[frontTread] = 0;
   nMotorEncoder[frontTread] = 0;
+  servo[beefyMcServo] = 240;
+
+  string BatteryLevel = externalBatteryAvg;
+
+  nxtDisplayCenteredBigTextLine (3, BatteryLevel);
+
+  wait1Msec(5000);
+
+  nxtDisplayCenteredBigTextLine (3, "Teleop Running.");
+
 }
 
 bool mode (bool switchMode)
@@ -56,9 +68,8 @@ bool mode (bool switchMode)
 
 task main()
 {
-  int position1 = 0;
-  int position2 = 0;
   bool treadMaxSpeed = true;
+  int armspeed = ARMSPEED;
   initialize();
 
   waitForStart();
@@ -175,54 +186,14 @@ task main()
     //Secondary Objective:
     //     - see if you can find a way to get the arms to rotate to a predetermined position and then stop
 
+    if (joy1Btn(11) == 1) {
+      armspeed = ARMSPEED;
+      armspeed = ARMSPEED;
+    } else if(joystick.joy1_y1 >= 10){
+      armspeed = joystick.joy1_y1 * .78;
+      armspeed = joystick.joy1_y1 * .78;
+    }
 
-    /*if (joy1Btn(5) == 1 || joy1Btn(6) == 1) {        //IF ARM IS SUPPOSED TO BE MOVING...
-      if (servo[leftClaw] == LCLAWCLOSE) {             //IF HOLDING A BOX...
-        if (joy1Btn(5) == 1) {
-          //MOVE ARM UP 80% POWER
-          motor[leftArm] = -ARMSPEED * 4;
-          motor[rightArm] = -ARMSPEED * 4;
-        } else if (joy1Btn(6) == 1) {
-          //MOVE ARM DOWN 20% POWER
-          motor[leftArm] = ARMSPEED;
-          motor[rightArm] = ARMSPEED;
-        } else {
-          //DON'T MOVE ARM
-          motor[leftArm] = 0;
-          motor[rightArm] = 0;
-        }
-      } else {                                         //IF NOT HOLDING A BOX...
-        if (joy1Btn(5) == 1) {
-          //MOVE ARM UP 20% POWER
-          motor[leftArm] = -ARMSPEED;
-          motor[rightArm] = -ARMSPEED;
-        } else if (joy1Btn(6) == 1) {
-          //MOVE ARM DOWN 20% POWER
-          motor[leftArm] = ARMSPEED;
-          motor[rightArm] = ARMSPEED;
-        } else {
-          //DON'T MOVE ARM
-          motor[leftArm] = 0;
-          motor[rightArm] = 0;
-        }
-      }
-      //UPDATE ENCODER VALUES (MOTOR POSITION)
-      position1 = nMotorEncoder[rightArm];
-      position2 = position1;
-    /*} else {                                        //IF ARM ISN'T SUPPOSED TO BE MOVING...
-      position2 = position1;                        //COMPARE CURRENT MOTOR POSITION WITH PREVIOUS POSITION. ARE THEY THE SAME?
-      position1 = nMotorEncoder[rightArm];
-      if (position1 < (position2-10)) {                     //NO, CURRENT POSIITON IS LOWER THAN PREVIOUS POSITION, MOVE ARM UP
-        motor[leftArm] = -ARMSPEED * 4;
-        motor[rightArm] = -ARMSPEED * 4;
-      } else if (position1 > (position2+10)) {              //NO, CURRENT POSITION IS HIGHER THAN PREVIOUS POSIITON, MOVE ARM DOWN
-        motor[leftArm] = ARMSPEED;
-        motor[rightArm] = ARMSPEED;
-      } else {                                              //YES, DO NOTHING
-        motor[leftArm] = 0;
-        motor[rightArm] = 0;
-      }
-    }*/
 	  /*if (joy1Btn(1) == 1) {
       nMotorEncoderTarget[rightArm] = 480;
     } else if (joy1Btn(2) == 1) {
@@ -233,13 +204,13 @@ task main()
 
     if (servo[leftClaw] == LCLAWCLOSE) {             //IF HOLDING A BOX...
       if (joy1Btn(5) == 1) {
-        //MOVE ARM UP 50% POWER
-        motor[leftArm] = -ARMSPEED * 2.5;
-        motor[rightArm] = -ARMSPEED * 2.5;
+        //MOVE ARM UP 70% POWER
+        motor[leftArm] = armspeed * 2.5;
+        motor[rightArm] = armspeed * 2.5;
       } else if (joy1Btn(6) == 1) {
-        //MOVE ARM DOWN 20% POWER
-        motor[leftArm] = ARMSPEED;
-        motor[rightArm] = ARMSPEED;
+        //MOVE ARM DOWN 30% POWER
+        motor[leftArm] = armspeed;
+        motor[rightArm] = armspeed;
       } else {
         //DON'T MOVE ARM
         motor[leftArm] = 0;
@@ -247,13 +218,13 @@ task main()
       }
     } else {                                         //IF NOT HOLDING A BOX...
       if (joy1Btn(5) == 1) {
-        //MOVE ARM UP 20% POWER
-        motor[leftArm] = -ARMSPEED;
-        motor[rightArm] = -ARMSPEED;
+        //MOVE ARM UP 30% POWER
+        motor[leftArm] = -armspeed;
+        motor[rightArm] = -armspeed;
       } else if (joy1Btn(6) == 1) {
-        //MOVE ARM DOWN 80% POWER
-        motor[leftArm] = ARMSPEED;
-        motor[rightArm] = ARMSPEED;
+        //MOVE ARM DOWN 30% POWER
+        motor[leftArm] = armspeed;
+        motor[rightArm] = armspeed;
       } else {
         //DON'T MOVE ARM
         motor[leftArm] = 0;
@@ -287,6 +258,13 @@ task main()
       //open right claw
       servo[rightClaw] = RCLAWOPEN;
     }
+
+    if (joystick.joy1_TopHat == 2) {
+      servo[beefyMcServo] = BEEFYMCSERVOIN;
+    } else if (joystick.joy1_TopHat == 6) {
+      servo[beefyMcServo] = BEEFYMCSERVOOUT;
+    }
+
     //------------------------------------
 
 
