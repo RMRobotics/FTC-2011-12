@@ -1,7 +1,4 @@
 #pragma config(Hubs,  S1, HTMotor,  HTMotor,  HTMotor,  HTServo)
-#pragma config(Sensor, S1,     ,                    sensorI2CMuxController)
-#pragma config(Motor,  motorA,          frontTread,    tmotorNormal, PIDControl, encoder)
-#pragma config(Motor,  motorB,          backTread,     tmotorNormal, PIDControl, encoder)
 #pragma config(Motor,  mtr_S1_C1_1,     frontLeftWheel, tmotorNormal, openLoop, reversed)
 #pragma config(Motor,  mtr_S1_C1_2,     frontRightWheel, tmotorNormal, openLoop)
 #pragma config(Motor,  mtr_S1_C2_1,     backRightWheel, tmotorNormal, openLoop)
@@ -10,7 +7,7 @@
 #pragma config(Motor,  mtr_S1_C3_2,     rightArm,      tmotorNormal, PIDControl, encoder)
 #pragma config(Servo,  srvo_S1_C4_1,    leftClaw,             tServoStandard)
 #pragma config(Servo,  srvo_S1_C4_2,    rightClaw,            tServoStandard)
-#pragma config(Servo,  srvo_S1_C4_3,    beefyMcServo,         tServoStandard)
+#pragma config(Servo,  srvo_S1_C4_3,    servo3,               tServoNone)
 #pragma config(Servo,  srvo_S1_C4_4,    servo4,               tServoNone)
 #pragma config(Servo,  srvo_S1_C4_5,    servo5,               tServoNone)
 #pragma config(Servo,  srvo_S1_C4_6,    servo6,               tServoNone)
@@ -33,10 +30,10 @@ task main(){
     //Turn Right
 
     if(joystick.joy1_TopHat==2){
-      motor[frontLeftWheel]=75;
-      motor[frontRightWheel]=0;
-      motor[backLeftWheel]=75;
-      motor[backRightWheel]=0;
+      motor[frontLeftWheel]=100;
+      motor[frontRightWheel]=-100;
+      motor[backLeftWheel]=100;
+      motor[backRightWheel]=-100;
       if(state != 2){
         AddToDatalog(2);
         AddToDatalog(time1(T1));
@@ -49,10 +46,10 @@ task main(){
     //Turn Left
 
     else if(joystick.joy1_TopHat==6){
-      motor[frontLeftWheel]=0;
-      motor[frontRightWheel]=75;
-      motor[backLeftWheel]=0;
-      motor[backRightWheel]=75;
+      motor[frontLeftWheel]=-100;
+      motor[frontRightWheel]=100;
+      motor[backLeftWheel]=-100;
+      motor[backRightWheel]=100;
       if(state != 6){
         AddToDatalog(6);
         AddToDatalog(time1(T1));
@@ -65,10 +62,10 @@ task main(){
     //Move Forward
 
     else if(joystick.joy1_TopHat==0){
-      motor[frontLeftWheel]=75;
-      motor[frontRightWheel]=75;
-      motor[backLeftWheel]=75;
-      motor[backRightWheel]=75;
+      motor[frontLeftWheel]=100;
+      motor[frontRightWheel]=100;
+      motor[backLeftWheel]=100;
+      motor[backRightWheel]=100;
       if(state != 0){
         AddToDatalog(0);
         AddToDatalog(time1(T1));
@@ -81,10 +78,10 @@ task main(){
     //Move Backward
 
     else if(joystick.joy1_TopHat==4){
-      motor[frontLeftWheel]=-75;
-      motor[frontRightWheel]=-75;
-      motor[backLeftWheel]=-75;
-      motor[backRightWheel]=-75;
+      motor[frontLeftWheel]=-100;
+      motor[frontRightWheel]=-100;
+      motor[backLeftWheel]=-100;
+      motor[backRightWheel]=-100;
       if(state != 4){
         AddToDatalog(4);
         AddToDatalog(time1(T1));

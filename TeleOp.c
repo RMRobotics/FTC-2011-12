@@ -1,7 +1,4 @@
 #pragma config(Hubs,  S1, HTMotor,  HTMotor,  HTMotor,  HTServo)
-#pragma config(Sensor, S1,     ,                    sensorI2CMuxController)
-#pragma config(Motor,  motorA,          frontTread,    tmotorNormal, PIDControl, encoder)
-#pragma config(Motor,  motorB,          backTread,     tmotorNormal, PIDControl, encoder)
 #pragma config(Motor,  mtr_S1_C1_1,     frontLeftWheel, tmotorNormal, openLoop, reversed)
 #pragma config(Motor,  mtr_S1_C1_2,     frontRightWheel, tmotorNormal, openLoop)
 #pragma config(Motor,  mtr_S1_C2_1,     backRightWheel, tmotorNormal, openLoop)
@@ -10,7 +7,7 @@
 #pragma config(Motor,  mtr_S1_C3_2,     rightArm,      tmotorNormal, PIDControl, encoder)
 #pragma config(Servo,  srvo_S1_C4_1,    leftClaw,             tServoStandard)
 #pragma config(Servo,  srvo_S1_C4_2,    rightClaw,            tServoStandard)
-#pragma config(Servo,  srvo_S1_C4_3,    beefyMcServo,         tServoStandard)
+#pragma config(Servo,  srvo_S1_C4_3,    servo3,               tServoNone)
 #pragma config(Servo,  srvo_S1_C4_4,    servo4,               tServoNone)
 #pragma config(Servo,  srvo_S1_C4_5,    servo5,               tServoNone)
 #pragma config(Servo,  srvo_S1_C4_6,    servo6,               tServoNone)
@@ -19,15 +16,14 @@
 #include "JoystickDriver.c"
 
 //-----------Constants------------------
-#define WHEELSPEED 75
+#define WHEELSPEED 100
 #define ARMSPEED 30
-#define TREADSPEED 50
-#define LCLAWOPEN 127
-#define LCLAWCLOSE 255
-#define RCLAWOPEN 128
-#define RCLAWCLOSE 0
-#define BEEFYMCSERVOOUT 180
-#define BEEFYMCSERVOIN 240
+#define LCLAWOPEN 0
+#define LCLAWBOX 175
+#define LCLAWBALL 255
+#define RCLAWOPEN 255
+#define RCLAWBOX 80
+#define RCLAWBALL 0
 //--------------------------------------
 // when give your motors/servos values, use these constants, not numbers
 // so that if we need to change them, they're easy to access
@@ -41,14 +37,9 @@ void initialize()
   motor[leftArm] = 0;
   motor[rightArm] = 0;
   nMotorEncoder[rightArm] = 0;
-  nMotorEncoderTarget[rightArm] = 10;
+  //nMotorEncoderTarget[rightArm] = 10;
   servo[leftClaw] = LCLAWOPEN;
   servo[rightClaw] = RCLAWOPEN;
-  nSyncedMotors = synchAB;
-  nSyncedTurnRatio = 100;
-  motor[frontTread] = 0;
-  nMotorEncoder[frontTread] = 0;
-  servo[beefyMcServo] = 240;
 
   string BatteryLevel = externalBatteryAvg;
 
@@ -60,15 +51,8 @@ void initialize()
 
 }
 
-bool mode (bool switchMode)
-{
-  return !switchMode;
-}
-
-
 task main()
 {
-  bool treadMaxSpeed = true;
   int armspeed = ARMSPEED;
   initialize();
 
@@ -194,42 +178,22 @@ task main()
       armspeed = joystick.joy1_y1 * .78;
     }
 
-	  /*if (joy1Btn(1) == 1) {
-      nMotorEncoderTarget[rightArm] = 480;
-    } else if (joy1Btn(2) == 1) {
-      nMotorEncoderTarget[rightArm] = 560;
-    } else if (joy1Btn(3) == 1) {
-      nMotorEncoderTarget[rightArm] = 680;
+	  /*if (joy1Btn(4) == 1) {
+      nMotorEncoderTarget[rightArm] = 80;
     }*/
 
-    if (servo[leftClaw] == LCLAWCLOSE) {             //IF HOLDING A BOX...
-      if (joy1Btn(5) == 1) {
-        //MOVE ARM UP 70% POWER
-        motor[leftArm] = armspeed * 2.5;
-        motor[rightArm] = armspeed * 2.5;
-      } else if (joy1Btn(6) == 1) {
-        //MOVE ARM DOWN 30% POWER
-        motor[leftArm] = armspeed;
-        motor[rightArm] = armspeed;
-      } else {
-        //DON'T MOVE ARM
-        motor[leftArm] = 0;
-        motor[rightArm] = 0;
-      }
-    } else {                                         //IF NOT HOLDING A BOX...
-      if (joy1Btn(5) == 1) {
-        //MOVE ARM UP 30% POWER
-        motor[leftArm] = -armspeed;
-        motor[rightArm] = -armspeed;
-      } else if (joy1Btn(6) == 1) {
-        //MOVE ARM DOWN 30% POWER
-        motor[leftArm] = armspeed;
-        motor[rightArm] = armspeed;
-      } else {
-        //DON'T MOVE ARM
-        motor[leftArm] = 0;
-        motor[rightArm] = 0;
-      }
+    if (joy1Btn(5) == 1) {
+      //MOVE ARM UP 30% POWER
+      motor[leftArm] = -armspeed;
+      motor[rightArm] = -armspeed;
+    } else if (joy1Btn(6) == 1) {
+      //MOVE ARM DOWN 30% POWER
+      motor[leftArm] = armspeed;
+      motor[rightArm] = armspeed;
+    } else {
+      //DON'T MOVE ARM
+      motor[leftArm] = 0;
+      motor[rightArm] = 0;
     }
 
     /*if (nMotorRunState[rightArm] == runStateIdle) {
@@ -243,62 +207,25 @@ task main()
     //-----------Claws--------------------
 
     //Primary Objective:
-    //     - close claws when btn 7 pressed, open claws when btn 8 pressed (claws should start open)
-    //     - opening positions for left/right claws are LCLAWOPEN and RCLAWOPEN
-    //     - closing positions for left/right claws are LCLAWCLOSE and RCLAWCLOSE
+    //     - open claws when btn 1 pressed (claws should start open) (LCLAWOPEN, RCLAWOPEN)
+    //     - grab box when btn 2 pressed (LCLAWBOX, RCLAWBOX)
+    //     - grab ball when btn 3 pressed (LCLAWBALL, RCLAWBALL)
 
-    if (joy1Btn(7) == 1) {
-      //close left claw
-      servo[leftClaw] = LCLAWCLOSE;
-      //close right claw
-      servo[rightClaw] = RCLAWCLOSE;
-    } else if (joy1Btn(8) == 1) {
+    if (joy1Btn(1) == 1) {
       //open left claw
       servo[leftClaw] = LCLAWOPEN;
       //open right claw
       servo[rightClaw] = RCLAWOPEN;
-    }
-
-    if (joystick.joy1_TopHat == 2) {
-      servo[beefyMcServo] = BEEFYMCSERVOIN;
-    } else if (joystick.joy1_TopHat == 6) {
-      servo[beefyMcServo] = BEEFYMCSERVOOUT;
-    }
-
-    //------------------------------------
-
-
-    //-----------Tread--------------------
-
-    //Primary Objective:
-    //     - if btn 1 is pressed, have tread move forward until btn 2 is pressed.
-    //     - tread should move at speed TREADSPEED
-
-    if (joy1Btn(9) == 1) {
-      treadMaxSpeed=mode(treadMaxSpeed);
-    }
-
-	  if (joy1Btn(10) == 1) {
-	    motor[frontTread] = -TREADSPEED*2;
-	    nMotorEncoder[frontTread] = 0;
-	  }
-
-    if (treadMaxSpeed == false){
-      if (joystick.joy1_TopHat == 0 && nMotorEncoder[frontTread] <= 300) {
-        motor[frontTread] = TREADSPEED;
-      } else if (joystick.joy1_TopHat == 4 && nMotorEncoder[frontTread] >= 20) {
-        motor[frontTread] = -TREADSPEED;
-      } else{
-        motor[frontTread] = 0;
-      }
-    } else{
-      if (joystick.joy1_TopHat == 0 && nMotorEncoder[frontTread] <= 215) {
-        motor[frontTread] = TREADSPEED*2;
-      } else if (joystick.joy1_TopHat == 4 && nMotorEncoder[frontTread] >= 100) {
-        motor[frontTread] = -TREADSPEED*2;
-      } else{
-        motor[frontTread] = 0;
-      }
+    } else if (joy1Btn(2) == 1) {
+      //left claw grab box
+      servo[leftClaw] = LCLAWBOX;
+      //right claw grab box
+      servo[rightClaw] = RCLAWBOX;
+    } else if (joy1Btn(3) == 1) {
+      //left claw grab ball
+      servo[leftClaw] = LCLAWBALL;
+      //right claw grab ball
+      servo[rightClaw] = RCLAWBALL;
     }
 
     //------------------------------------

@@ -1,7 +1,4 @@
 #pragma config(Hubs,  S1, HTMotor,  HTMotor,  HTMotor,  HTServo)
-#pragma config(Sensor, S4,     sonarSensor,         sensorSONAR)
-#pragma config(Motor,  motorA,          frontTread,    tmotorNormal, PIDControl, encoder)
-#pragma config(Motor,  motorB,          backTread,     tmotorNormal, PIDControl, encoder)
 #pragma config(Motor,  mtr_S1_C1_1,     frontLeftWheel, tmotorNormal, openLoop, reversed)
 #pragma config(Motor,  mtr_S1_C1_2,     frontRightWheel, tmotorNormal, openLoop)
 #pragma config(Motor,  mtr_S1_C2_1,     backRightWheel, tmotorNormal, openLoop)
@@ -23,7 +20,7 @@
 void drive (string auto_command, long time) {
   int left_wheelsPower;
   int right_wheelsPower;
-  int WHEELSPEED = 75;
+  int WHEELSPEED = 100;
 
   if(auto_command=="rpoint") {
     //Check for right movement
@@ -93,10 +90,6 @@ task main(){
 
   waitForStart();
 
-  long offset_back = 0;
-  long offset_right = 0;
-  long offset_left = 0;
-  long robot_length = 667; //In milliseconds
   long distance = 0;
 
   /*
@@ -110,23 +103,105 @@ task main(){
   wait1Msec(3000);
   */
 
-  //1) Drive off home zone
+  //0) Move off of home zone
   distance = 1650;
   drive("up", distance);
 
-  //2) Turn left 90 degrees
+  //1) Measure offset from walls
+  //Convert offset distance into milliseconds
+
+  // Turn left 90 degrees and measure
   distance = 870;
   drive("rpoint", distance);
+  //offset_right = (SensorValue[sonarSensor]/60.96) * 1000;
 
-  //3) Hit bowling ball into back lot
+  //Remeasure
+  //offset_back = ((SensorValue[sonarSensor]/60.96) * 1000) - 1958.3333;
+
+
+  //2) Move forward ((Four Feet Seven Inches=139.7 cm)-offset_back)
+
   distance = 3000;
   drive("up", distance);
 
-  //4) Turn left 45 degrees
+  //3) Point turn 90 degrees
+
   distance = 420;
   drive("rpoint", distance);
 
-  //5) Drive into back lot
   distance = 2000;
   drive("up", distance);
+/*
+  //4) Move forward ((Four Feet Eight Inches=142.24 cm)-(the robot's length)-offset_right)
+/////
+  distance = 2333.333333 - robot_length - offset_right;
+  drive("up", distance);
+
+  //5) Point turn -33.7 degrees
+
+  distance = 280.833333;
+  drive("lpoint", distance);
+
+  //6) Move forward ((Seven Feet 2.5 Inches=219.71 cm)-(the robot's length))
+
+  distance = 3604.1666666 - robot_length;
+  drive("up", distance);
+
+  //7) Pause 1 second
+
+  wait1Msec(1000);
+
+  //8) Move backward (Three Inches=7.62 cm)
+
+  distance = 125;
+  drive("down", distance);
+
+  //9) Point turn 33.7 degrees
+
+  distance = 280.833333;
+  drive("rpoint", distance);
+
+  //10) Measure offset from RED base wall (should be from 5' - 7' = 152.4-213.36 cm)
+  offset_right = (SensorValue[sonarSensor]/60.96) * 1000;
+
+  //11) Move backward until (offset=(Two Feet Six Inches = 76.2 cm))
+  //OR Move backward (Two Feet Four Inches = 71.12 cm)
+  //Robot will move into RED Low Zone
+
+  //while offset_right > 857 {
+  //  drive("down", 500);
+  //  offset_right = SensorValue[sonarSensor]/60.96;
+  //}
+  //OR
+  distance = 857;
+  drive("down", distance);
+
+  //12) Point Turn 90 degrees
+
+  distance = 750;
+  drive("rpoint", distance);
+
+  //13) Measure offset
+  offset_back = (SensorValue[sonarSensor]/60.96) * 1000;
+
+  //14) Move until (offset=(Ten Feet Six Inches = 320.04 cm)-(half the robot's length))
+  //OR Move forward (Nine Feet Eight Inches = 294.64 cm)
+
+  //while offset_back > 5250 {
+  //  drive("up", 500);
+  //  offset_right = SensorValue[sonarSensor]/60.96;
+  //}
+  //OR
+  distance = 4833.33333;
+  drive("up", distance);
+
+  //15) Point Turn 90 Degrees
+
+  distance = 750;
+  drive("rpoint", distance);
+
+  //16) Move forward (Five Feet Six Inches = 167.64 cm)
+
+  distance = 2750;
+  drive("up", distance);*/
 }

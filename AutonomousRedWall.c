@@ -1,7 +1,4 @@
 #pragma config(Hubs,  S1, HTMotor,  HTMotor,  HTMotor,  HTServo)
-#pragma config(Sensor, S4,     sonarSensor,         sensorSONAR)
-#pragma config(Motor,  motorA,          frontTread,    tmotorNormal, PIDControl, encoder)
-#pragma config(Motor,  motorB,          backTread,     tmotorNormal, PIDControl, encoder)
 #pragma config(Motor,  mtr_S1_C1_1,     frontLeftWheel, tmotorNormal, openLoop, reversed)
 #pragma config(Motor,  mtr_S1_C1_2,     frontRightWheel, tmotorNormal, openLoop)
 #pragma config(Motor,  mtr_S1_C2_1,     backRightWheel, tmotorNormal, openLoop)
@@ -24,7 +21,7 @@ void drive (string auto_command, long cmdistance) {
 	int left_wheelsPower;
 	int right_wheelsPower;
 	int time;
-	int WHEELSPEED = 75;
+	int WHEELSPEED = 100;
 
 	if(auto_command=="rpoint") {
 		//Check for right movement
@@ -65,7 +62,7 @@ void drive (string auto_command, long cmdistance) {
 	}
 
 	//Convert cmdistance into milliseconds
-	time = (1650/60.96) * cmdistance
+	time = (1650/60.96) * cmdistance;
 
 	//Drive Code
 	motor[frontLeftWheel] = left_wheelsPower;
@@ -84,7 +81,7 @@ task main(){
 	//Code: drive(auto_command,time);
 	//replace auto_command and cmdistance with values necessary (if you don't replace them, code won't run)
 	//auto_command values are: "rpoint", "lpoint", "up", "down", "rswing", "lswing", "rswingback", "lswingback"
-	//cmdistance is distance in cm (to run 
+	//cmdistance is distance in cm (to run
 
 	//Info:
 	//Motor at 75% power travels at 2 feet per 1650 ms = 60.96 cm/1650 ms
@@ -95,12 +92,8 @@ task main(){
 	//drive("lpoint", 1000);   left point turn for 1000 milliseconds (1sec)
 	//drive("up", 10000);      move forward again for 10000 milliseconds (10sec)
 
-	waitForStart();
+	//waitForStart();
 
-	long offset_back = 0;
-	long offset_right = 0;
-	long offset_left = 0;
-	long robot_length = 667; //In milliseconds
 	long distance = 0;
 
 	/*Display Battery Level
@@ -165,5 +158,3 @@ task main(){
 
 	*/
 }
-	
-

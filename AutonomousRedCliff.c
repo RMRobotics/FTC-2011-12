@@ -1,7 +1,4 @@
 #pragma config(Hubs,  S1, HTMotor,  HTMotor,  HTMotor,  HTServo)
-#pragma config(Sensor, S4,     sonarSensor,         sensorSONAR)
-#pragma config(Motor,  motorA,          frontTread,    tmotorNormal, PIDControl, encoder)
-#pragma config(Motor,  motorB,          backTread,     tmotorNormal, PIDControl, encoder)
 #pragma config(Motor,  mtr_S1_C1_1,     frontLeftWheel, tmotorNormal, openLoop, reversed)
 #pragma config(Motor,  mtr_S1_C1_2,     frontRightWheel, tmotorNormal, openLoop)
 #pragma config(Motor,  mtr_S1_C2_1,     backRightWheel, tmotorNormal, openLoop)
@@ -23,7 +20,7 @@
 void drive (string auto_command, long time) {
   int left_wheelsPower;
   int right_wheelsPower;
-  int WHEELSPEED = 75;
+  int WHEELSPEED = 100;
 
   if(auto_command=="rpoint") {
     //Check for right movement
@@ -93,10 +90,6 @@ task main(){
 
   waitForStart();
 
-  long offset_back = 0;
-  long offset_right = 0;
-  long offset_left = 0;
-  long robot_length = 667; //In milliseconds
   long distance = 0;
 
   /*
@@ -110,7 +103,7 @@ task main(){
   wait1Msec(3000);
   */
 
-  //1) Drive off home zone
+  //1) Move forward off home zone
   distance = 1650;
   drive("up", distance);
 
@@ -118,15 +111,18 @@ task main(){
   distance = 870;
   drive("lpoint", distance);
 
-  //3) Hit bowling ball into back lot
+  //3) Move forward and hit bowling ball
+
   distance = 2000;
   drive("up", distance);
 
-  //4) Turn left 45 degrees
+  //4) Turn 45 degrees
+
   distance = 420;
   drive("lpoint", distance);
 
-  //5) Drive into back lot
+  //5) Move forward into back lot
+
   distance = 2000;
   drive("up", distance);
 }
