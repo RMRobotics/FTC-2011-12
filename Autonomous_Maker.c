@@ -1,8 +1,9 @@
 #pragma config(Hubs,  S1, HTMotor,  HTMotor,  HTMotor,  HTServo)
-#pragma config(Motor,  mtr_S1_C1_1,     frontLeftWheel, tmotorNormal, openLoop, reversed)
-#pragma config(Motor,  mtr_S1_C1_2,     frontRightWheel, tmotorNormal, openLoop)
-#pragma config(Motor,  mtr_S1_C2_1,     backRightWheel, tmotorNormal, openLoop)
-#pragma config(Motor,  mtr_S1_C2_2,     backLeftWheel, tmotorNormal, openLoop, reversed)
+#pragma config(Sensor, S1,     ,                    sensorI2CMuxController)
+#pragma config(Motor,  mtr_S1_C1_1,     frontLeftWheel, tmotorNormal, openLoop)
+#pragma config(Motor,  mtr_S1_C1_2,     frontRightWheel, tmotorNormal, openLoop, reversed)
+#pragma config(Motor,  mtr_S1_C2_1,     backRightWheel, tmotorNormal, openLoop, reversed)
+#pragma config(Motor,  mtr_S1_C2_2,     backLeftWheel, tmotorNormal, openLoop)
 #pragma config(Motor,  mtr_S1_C3_1,     leftArm,       tmotorNormal, openLoop, reversed)
 #pragma config(Motor,  mtr_S1_C3_2,     rightArm,      tmotorNormal, PIDControl, encoder)
 #pragma config(Servo,  srvo_S1_C4_1,    leftClaw,             tServoStandard)
@@ -31,9 +32,9 @@ task main(){
 
     if(joystick.joy1_TopHat==2){
       motor[frontLeftWheel]=100;
-      motor[frontRightWheel]=-100;
+      motor[frontRightWheel]=0;
       motor[backLeftWheel]=100;
-      motor[backRightWheel]=-100;
+      motor[backRightWheel]=0;
       if(state != 2){
         AddToDatalog(2);
         AddToDatalog(time1(T1));
@@ -46,9 +47,9 @@ task main(){
     //Turn Left
 
     else if(joystick.joy1_TopHat==6){
-      motor[frontLeftWheel]=-100;
+      motor[frontLeftWheel]=0;
       motor[frontRightWheel]=100;
-      motor[backLeftWheel]=-100;
+      motor[backLeftWheel]=0;
       motor[backRightWheel]=100;
       if(state != 6){
         AddToDatalog(6);

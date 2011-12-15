@@ -1,8 +1,8 @@
 #pragma config(Hubs,  S1, HTMotor,  HTMotor,  HTMotor,  HTServo)
-#pragma config(Motor,  mtr_S1_C1_1,     frontLeftWheel, tmotorNormal, openLoop, reversed)
-#pragma config(Motor,  mtr_S1_C1_2,     frontRightWheel, tmotorNormal, openLoop)
-#pragma config(Motor,  mtr_S1_C2_1,     backRightWheel, tmotorNormal, openLoop)
-#pragma config(Motor,  mtr_S1_C2_2,     backLeftWheel, tmotorNormal, openLoop, reversed)
+#pragma config(Motor,  mtr_S1_C1_1,     frontLeftWheel, tmotorNormal, openLoop)
+#pragma config(Motor,  mtr_S1_C1_2,     frontRightWheel, tmotorNormal, openLoop, reversed)
+#pragma config(Motor,  mtr_S1_C2_1,     backRightWheel, tmotorNormal, openLoop, reversed)
+#pragma config(Motor,  mtr_S1_C2_2,     backLeftWheel, tmotorNormal, openLoop)
 #pragma config(Motor,  mtr_S1_C3_1,     leftArm,       tmotorNormal, openLoop, reversed)
 #pragma config(Motor,  mtr_S1_C3_2,     rightArm,      tmotorNormal, PIDControl, encoder)
 #pragma config(Servo,  srvo_S1_C4_1,    leftClaw,             tServoStandard)
@@ -18,12 +18,12 @@
 //-----------Constants------------------
 #define WHEELSPEED 100
 #define ARMSPEED 30
-#define LCLAWOPEN 0
-#define LCLAWBOX 175
-#define LCLAWBALL 255
-#define RCLAWOPEN 255
-#define RCLAWBOX 80
-#define RCLAWBALL 0
+#define LCLAWOPEN 155
+#define LCLAWBOX 190
+#define LCLAWBALL 250
+#define RCLAWOPEN 100
+#define RCLAWBOX 65
+#define RCLAWBALL 5
 //--------------------------------------
 // when give your motors/servos values, use these constants, not numbers
 // so that if we need to change them, they're easy to access
@@ -45,9 +45,13 @@ void initialize()
 
   nxtDisplayCenteredBigTextLine (3, BatteryLevel);
 
+  if(externalBatteryAvg<13000){
+    PlayTone(500,10*(13000-externalBatteryAvg));
+  }
+
   wait1Msec(5000);
 
-  nxtDisplayCenteredBigTextLine (3, "Teleop Running.");
+  nxtDisplayCenteredBigTextLine (5, "Teleop Running.");
 
 }
 
@@ -108,10 +112,10 @@ task main()
         //Must be either Right Point, Right Back Swing, Backwards, or Left Back Swing
         //!IMPORTANT: Code works by order, so code CANNOT be merged unless order is followed
         if (wheels_y1 >= -tan_line_leftright) {
-          //Right Point Turn -- Move right tread backwards, left tread forwards
-          left_wheelsPower = WHEELSPEED;
-          right_wheelsPower = -WHEELSPEED;
-        } else if (wheels_y1 >= -tan_line_updown) {
+          //Stop
+          left_wheelsPower = 0;
+          right_wheelsPower = 0;
+		}else if (wheels_y1 >= -tan_line_updown) {
           //Swing Turn Backwards Right
           left_wheelsPower = -WHEELSPEED;
           right_wheelsPower = 0;
@@ -128,10 +132,10 @@ task main()
         //Must be either Left Point, Left Swing, Forwards, or Right Swing
         //!IMPORTANT: Code works by order, so code CANNOT be merged unless order is followed
         if (wheels_y1 <= -tan_line_leftright) {
-          //Left Point Turn -- Move right tread forwards, left tread backwards
-          left_wheelsPower = -WHEELSPEED;
-          right_wheelsPower = WHEELSPEED;
-        } else if (wheels_y1 <= -tan_line_updown) {
+          //Stop
+          left_wheelsPower = 0;
+          right_wheelsPower = 0;
+	    }else if (wheels_y1 <= -tan_line_updown) {
           //Swing Turn Left
           left_wheelsPower = 0;
           right_wheelsPower = WHEELSPEED;
@@ -178,10 +182,6 @@ task main()
       armspeed = joystick.joy1_y1 * .78;
     }
 
-	  /*if (joy1Btn(4) == 1) {
-      nMotorEncoderTarget[rightArm] = 80;
-    }*/
-
     if (joy1Btn(5) == 1) {
       //MOVE ARM UP 30% POWER
       motor[leftArm] = -armspeed;
@@ -195,11 +195,6 @@ task main()
       motor[leftArm] = 0;
       motor[rightArm] = 0;
     }
-
-    /*if (nMotorRunState[rightArm] == runStateIdle) {
-	    motor[leftArm] = 0;
-	    motor[rightArm] = 0;
-	  }*/
 
     //------------------------------------
 
