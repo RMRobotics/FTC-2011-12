@@ -83,66 +83,66 @@ task main(){
   */
 
 
-//Drive forward off of home red wall
+//Drive forward off of home blu wall
 drive(0,4596);
 drive(65535,100);
 
-//Turn left 90 degrees
-drive(6,3185);
+//Turn right 90 degrees
+drive(2,3185);
 drive(65535,100);
 
 //Drive forward to bowling ball
 drive(0,2908);
 drive(65535,100);
 
-//Turn left 90 degrees
-drive(6,4037);
+//Turn right 90 degrees
+drive(2,4037);
 drive(65535,100);
 
-//Turn left a bit
-drive(6,516);
+//Turn right a bit
+drive(2,516);
 drive(65535,100);
 drive(0,657);//Drive past bowling ball
 drive(65535,100);
-drive(2,188);//Turn right into bowling ball
+drive(6,188);//Turn left into bowling ball
 drive(65535,100);
-drive(2,237);//Turn right into bowling ball
+drive(6,237);//Turn left into bowling ball
 drive(65535,100);
 drive(0,425);//Drive forward
 drive(65535,100);
-drive(2,279);//Turn right into bowling ball
+drive(6,279);//Turn left into bowling ball
 drive(65535,100);
-drive(2,424);//Turn right into bowling ball
+drive(6,424);//Turn left into bowling ball
 drive(65535,100);
 drive(0,799);//Drive forward a bit
 drive(65535,100);
-drive(2,468);//Turn right into bowling ball
+drive(6,468);//Turn left into bowling ball
 drive(65535,100);
 drive(0,516);//Drive forward a bit
 drive(65535,100);
-drive(2,2065);//Turn right into bowling ball
+drive(6,2065);//Turn left into bowling ball
 drive(65535,100);
 drive(0,1409);//Drive forward
 drive(65535,100);
-drive(2,8299);//Turn right, line up with bowling ball
+drive(6,8299);//Turn left, line up with bowling ball
 drive(65535,100);
-drive(2,424);//Turn right, line up with bowling ball
+drive(6,424);//Turn left, line up with bowling ball
 
 //Drive bowling ball into front zone
 drive(65535,100);
 drive(0,4408);//Drive forward
 drive(65535,100);
-drive(2,424);//Turn right, realign with bowling ball
+drive(6,424);//Realign with bowling ball
 drive(65535,100);
 drive(0,2908);//Drive forward
 drive(65535,100);
-drive(2,608);//Realign with bowling ball
+drive(6,608);//Realign with bowling ball
 drive(65535,100);
 drive(0,1312);//Drive forward
 drive(0,1920);//Drive forward
 drive(65535,100);
 drive(0,424);//Drive forward
-drive(65535,500);
+drive(65535,100);
 
 drive(4,9756);//Drive backwards
 drive(65535,100);

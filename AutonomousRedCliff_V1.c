@@ -83,7 +83,7 @@ task main(){
   */
 
 
-//Drive forward off of home red wall
+//Drive forward off of home red cliff
 drive(0,4596);
 drive(65535,100);
 
@@ -92,7 +92,7 @@ drive(6,3185);
 drive(65535,100);
 
 //Drive forward to bowling ball
-drive(0,2908);
+drive(0,1036);
 drive(65535,100);
 
 //Turn left 90 degrees
@@ -132,7 +132,7 @@ drive(2,424);//Turn right, line up with bowling ball
 drive(65535,100);
 drive(0,4408);//Drive forward
 drive(65535,100);
-drive(2,424);//Turn right, realign with bowling ball
+drive(2,424);//Realign with bowling ball
 drive(65535,100);
 drive(0,2908);//Drive forward
 drive(65535,100);
@@ -142,7 +142,7 @@ drive(0,1312);//Drive forward
 drive(0,1920);//Drive forward
 drive(65535,100);
 drive(0,424);//Drive forward
-drive(65535,500);
+drive(65535,100);
 
 drive(4,9756);//Drive backwards
 drive(65535,100);

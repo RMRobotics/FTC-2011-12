@@ -60,7 +60,7 @@ task main()
   int armspeed = ARMSPEED;
   initialize();
 
-  waitForStart();
+  //waitForStart();
 
   //Used for calculating size of triangle of motion that will define point turning left/right
   float tan_angle_leftright = 1.0 / sqrt(3); // tan(PI / 6), Graph of y=tan(angle_leftright) used for point turn left/right; MUST BE IN RADIANS
@@ -195,6 +195,7 @@ task main()
       motor[leftArm] = 0;
       motor[rightArm] = 0;
     }
+
 
     //------------------------------------
 
