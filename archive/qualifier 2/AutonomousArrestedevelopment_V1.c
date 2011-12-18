@@ -82,6 +82,129 @@ task main(){
   wait1Msec(3000);
   */
 
-  
+  string arresteddev = "redcliff";  //!IMPORTANT - options are "redwall", "redcliff", "bluwall", "blucliff"
 
+  if(arresteddev == "bluwall") {
+  }else if (arresteddev == "redwall") {
+  }else if (arresteddev == "redcliff") {
+    drive(0,984);
+		drive(65535,100);
+		drive(0,656);
+		drive(65535,100);
+		drive(0,567);
+		drive(65535,100);
+		drive(0,1692);
+		drive(65535,100);
+		drive(6,700);
+		drive(65535,100);
+		drive(6,1172);
+		drive(65535,100);
+		drive(4,371);
+		drive(65535,100);
+		drive(6,893);
+		drive(65535,100);
+		drive(4,424);
+		drive(65535,100);
+		drive(6,1687);
+		drive(65535,100);
+		drive(0,473);
+		drive(65535,100);
+		drive(0,276);
+		drive(65535,100);
+		drive(6,236);
+		drive(65535,100);
+		drive(0,564);
+		drive(65535,100);
+		drive(6,561);
+		drive(65535,100);
+		drive(0,5955);
+		drive(65535,100);
+		drive(4,368);
+		drive(65535,100);
+		drive(0,236);
+		drive(65535,100);
+		drive(4,179);
+		drive(65535,100);
+		drive(0,1969);
+  }else if (arresteddev == "blucliff") {
+    drive(0,984);
+		drive(65535,100);
+		drive(0,656);
+		drive(65535,100);
+		drive(0,567);
+		drive(65535,100);
+		drive(0,1692);
+		drive(65535,100);
+		drive(2,700);
+		drive(65535,100);
+		drive(2,1172);
+		drive(65535,100);
+		drive(4,371);
+		drive(65535,100);
+		drive(2,893);
+		drive(65535,100);
+		drive(4,424);
+		drive(65535,100);
+		drive(2,1687);
+		drive(65535,100);
+		drive(0,473);
+		drive(65535,100);
+		drive(0,276);
+		drive(65535,100);
+		drive(2,236);
+		drive(65535,100);
+		drive(0,564);
+		drive(65535,100);
+		drive(2,561);
+		drive(65535,100);
+		drive(0,5955);
+		drive(65535,100);
+		drive(4,368);
+		drive(65535,100);
+		drive(0,236);
+		drive(65535,100);
+		drive(4,179);
+		drive(65535,100);
+		drive(0,1969);
+  }else {  //Blucliff default
+    drive(0,984);
+		drive(65535,100);
+		drive(0,656);
+		drive(65535,100);
+		drive(0,567);
+		drive(65535,100);
+		drive(0,1692);
+		drive(65535,100);
+		drive(2,700);
+		drive(65535,100);
+		drive(2,1172);
+		drive(65535,100);
+		drive(4,371);
+		drive(65535,100);
+		drive(2,893);
+		drive(65535,100);
+		drive(4,424);
+		drive(65535,100);
+		drive(2,1687);
+		drive(65535,100);
+		drive(0,473);
+		drive(65535,100);
+		drive(0,276);
+		drive(65535,100);
+		drive(2,236);
+		drive(65535,100);
+		drive(0,564);
+		drive(65535,100);
+		drive(2,561);
+		drive(65535,100);
+		drive(0,5955);
+		drive(65535,100);
+		drive(4,368);
+		drive(65535,100);
+		drive(0,236);
+		drive(65535,100);
+		drive(4,179);
+		drive(65535,100);
+		drive(0,1969);
+  }
 }

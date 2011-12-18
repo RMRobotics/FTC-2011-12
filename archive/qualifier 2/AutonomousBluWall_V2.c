@@ -71,6 +71,16 @@ task main(){
 
   waitForStart();
 
+drive(0,4504);
+drive(65535,327);
+drive(2,280);
+drive(65535,941);
+drive(2,92);
+drive(65535,192);
+drive(2,6000);
+drive(65535,284);
+drive(0,10553);
+
   /*
   int count = 0;
 
@@ -82,92 +92,6 @@ task main(){
   wait1Msec(3000);
   */
 
-  string arresteddev = "redwall"  //!IMPORTANT - options are "redwall", "redcliff", "bluwall", "blucliff"
-  
-  if(arresteddev = "redwall") {
-	//RED WALL
-	//Drive forward off of home red wall
-	drive(0,4596);
-	drive(65535,100);
 
-	//Turn left 90 degrees
-	drive(6,3185);
-	drive(65535,100);
-
-	//Drive forward to bowling ball
-	drive(0,4000);
-	drive(65535,100);
-	
-	//Turn left, line up with bowling ball
-	drive(6, 1500);
-	drive(65535, 100);
-	
-	//Drive forward to back zone
-	drive(0, 4300);
-  }else if (arresteddev = "redcliff") {
-  	//RED CLIFF
-	//Drive forward off of home red cliff
-	drive(0,4596);
-	drive(65535,100);
-
-	//Turn left 90 degrees
-	drive(6,3185);
-	drive(65535,100);
-
-	//Drive forward to bowling ball
-	drive(0,2100);
-	drive(65535,100);
-	
-	//Turn left, line up with bowling ball
-	drive(6, 1500);
-	drive(65535, 100);
-	
-	//Drive forward to back zone
-	drive(0, 4300);
-  }else if (arresteddev = "bluwall") {
-	//BLU WALL
-	//Drive forward off of home blu wall
-	drive(0,4596);
-	drive(65535,100);
-
-	//Turn right 90 degrees
-	drive(2,3185);
-	drive(65535,100);
-
-	//Drive forward to bowling ball
-	drive(0,4000);
-	drive(65535,100);
-	
-	//Turn right, line up with bowling ball
-	drive(2, 1500);
-	drive(65535, 100);
-	
-	//Drive forward to back zone
-	drive(0, 4300);
-  }else if (arresteddev = "blucliff") {
-	//BLU CLIFF
-	//Drive forward off of home blu cliff
-	drive(0,4596);
-	drive(65535,100);
-
-	//Turn right 90 degrees
-	drive(2,3185);
-	drive(65535,100);
-
-	//Drive forward to bowling ball
-	drive(0,2100);
-	drive(65535,100);
-	
-	//Turn right, line up with bowling ball
-	drive(2, 1500);
-	drive(65535, 100);
-	
-	//Drive forward to back zone
-	drive(0, 4300);
-  }else {
-	//Run pineapple situation
-	drive(0, 11500);
-  }
-  
 
 }

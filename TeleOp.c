@@ -20,10 +20,10 @@
 #define ARMSPEED 30
 #define LCLAWOPEN 155
 #define LCLAWBOX 190
-#define LCLAWBALL 250
+#define LCLAWBALL 255
 #define RCLAWOPEN 100
 #define RCLAWBOX 65
-#define RCLAWBALL 5
+#define RCLAWBALL 0
 //--------------------------------------
 // when give your motors/servos values, use these constants, not numbers
 // so that if we need to change them, they're easy to access

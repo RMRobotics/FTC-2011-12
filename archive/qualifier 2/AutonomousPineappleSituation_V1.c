@@ -82,7 +82,6 @@ task main(){
   wait1Msec(3000);
   */
 
-  drive(0, 11500);
-  
+  drive(0, 10000);
 
-}
+ }
