@@ -20,10 +20,10 @@
 #define ARMSPEED 30
 #define LCLAWOPEN 155
 #define LCLAWBOX 190
-#define LCLAWBALL 250
+#define LCLAWBALL 255
 #define RCLAWOPEN 100
 #define RCLAWBOX 65
-#define RCLAWBALL 5
+#define RCLAWBALL 0
 //--------------------------------------
 // when give your motors/servos values, use these constants, not numbers
 // so that if we need to change them, they're easy to access
@@ -60,7 +60,7 @@ task main()
   int armspeed = ARMSPEED;
   initialize();
 
-  waitForStart();
+  //waitForStart();
 
   //Used for calculating size of triangle of motion that will define point turning left/right
   float tan_angle_leftright = 1.0 / sqrt(3); // tan(PI / 6), Graph of y=tan(angle_leftright) used for point turn left/right; MUST BE IN RADIANS
@@ -195,6 +195,7 @@ task main()
       motor[leftArm] = 0;
       motor[rightArm] = 0;
     }
+
 
     //------------------------------------
 
