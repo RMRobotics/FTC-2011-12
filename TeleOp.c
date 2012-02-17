@@ -2,6 +2,7 @@
 #pragma config(Sensor, S1,     ,                    sensorI2CMuxController)
 #pragma config(Motor,  motorA,          leftBallCollector, tmotorNormal, PIDControl, encoder)
 #pragma config(Motor,  motorB,          rightBallCollector, tmotorNormal, PIDControl, reversed, encoder)
+#pragma config(Motor,  motorC,          topBalllCollector, tmotorNormal, PIDControl, encoder)
 #pragma config(Motor,  mtr_S1_C1_1,     frontLeftWheel, tmotorNormal, openLoop)
 #pragma config(Motor,  mtr_S1_C1_2,     frontRightWheel, tmotorNormal, openLoop, reversed)
 #pragma config(Motor,  mtr_S1_C2_1,     backRightWheel, tmotorNormal, openLoop, reversed)
@@ -20,13 +21,14 @@
 
 //-----------Constants------------------
 #define WHEELSPEED 100
-#define ARMSPEED 40
+#define ARMSPEED 30
 #define LCLAWOPEN 0
 #define LCLAWCLOSE 128
-//#define LCLAWBALL 255
 #define RCLAWOPEN 255
 #define RCLAWCLOSE 127
-//#define RCLAWBALL 0
+#define DOOROPEN 255
+#define DOORCLOSE 128
+
 //--------------------------------------
 // when give your motors/servos values, use these constants, not numbers
 // so that if we need to change them, they're easy to access
@@ -43,26 +45,31 @@ void initialize()
   //nMotorEncoderTarget[rightArm] = 10;
   servo[leftClaw] = LCLAWOPEN;
   servo[rightClaw] = RCLAWOPEN;
+  servo[door] = DOORCLOSE;
 
   string BatteryLevel = externalBatteryAvg;
 
   nxtDisplayCenteredBigTextLine (3, BatteryLevel);
+}
 
-  if(externalBatteryAvg<13000){
-    PlayTone(500,10*(13000-externalBatteryAvg));
-  }
-
-  //wait1Msec(5000);
-
-  nxtDisplayCenteredBigTextLine (5, "Teleop Running.");
-
+int toggle(bool buttoned, int spin, int direction)
+{
+  if(!buttoned)
+    if(spin == 0)
+      return direction;
+    else
+      return 0;
+  else
+    return spin;
 }
 
 task main()
 {
   initialize();
+  bool buttoned = false;
+  int spin = 0;
 
-  //waitForStart();
+  waitForStart();
 
   //Used for calculating size of triangle of motion that will define point turning left/right
   float tan_angle_leftright = 1.0 / sqrt(3); // tan(PI / 6), Graph of y=tan(angle_leftright) used for point turn left/right; MUST BE IN RADIANS
@@ -73,7 +80,6 @@ task main()
   while (true) {
 
     getJoystickSettings(joystick);
-
 
     //------------Driving-----------------
 
@@ -171,11 +177,20 @@ task main()
     //----------Ball Collector------------
 
     //Primary Objective:
-    //     - collect balls by spining 3 sets of zip-tied rods.
+    //     - collect balls by spinning a zip-tied rod.
 
-    nSyncedMotors = synchAB;
-    nSyncedTurnRatio = 100;
-    motor[leftBallCollector] = 100;
+    if(joy1Btn(4) == 1){
+      spin = toggle(buttoned, spin, 100);
+      buttoned = true;
+    }else if(joy1Btn(2) == 1){
+      spin = toggle(buttoned, spin, -100);
+      buttoned = true;
+    }else
+      buttoned = false;
+
+    motor[leftBallCollector] = spin;
+    motor[rightBallCollector] = spin;
+    motor[topBalllCollector] = spin;
 
     //------------------------------------
 
@@ -238,10 +253,10 @@ task main()
 
     if(joystick.joy1_TopHat == 0){
       //open door
-      servo[door] = 255;
+      servo[door] = DOOROPEN;
     }else if(joystick.joy1_TopHat == 4){
       //close door
-      servo[door] = 128;
+      servo[door] = DOORCLOSE;
     }
 
     //------------------------------------
