@@ -1,8 +1,8 @@
 #pragma config(Hubs,  S1, HTMotor,  HTMotor,  HTMotor,  HTServo)
-#pragma config(Sensor, S1,     ,                    sensorI2CMuxController)
+#pragma config(Sensor, S1,     ,               sensorI2CMuxController)
 #pragma config(Motor,  motorA,          leftBallCollector, tmotorNormal, PIDControl, encoder)
-#pragma config(Motor,  motorB,          rightBallCollector, tmotorNormal, PIDControl, reversed, encoder)
-#pragma config(Motor,  motorC,          topBalllCollector, tmotorNormal, PIDControl, encoder)
+#pragma config(Motor,  motorB,          rightBallCollector, tmotorNormal, PIDControl, encoder)
+#pragma config(Motor,  motorC,          topBallCollector, tmotorNormal, PIDControl, reversed, encoder)
 #pragma config(Motor,  mtr_S1_C1_1,     frontLeftWheel, tmotorNormal, openLoop)
 #pragma config(Motor,  mtr_S1_C1_2,     frontRightWheel, tmotorNormal, openLoop, reversed)
 #pragma config(Motor,  mtr_S1_C2_1,     backRightWheel, tmotorNormal, openLoop, reversed)
@@ -42,7 +42,6 @@ void initialize()
   motor[leftArm] = 0;
   motor[rightArm] = 0;
   nMotorEncoder[rightArm] = 0;
-  //nMotorEncoderTarget[rightArm] = 10;
   servo[leftClaw] = LCLAWOPEN;
   servo[rightClaw] = RCLAWOPEN;
   servo[door] = DOORCLOSE;
@@ -52,30 +51,24 @@ void initialize()
   nxtDisplayCenteredBigTextLine (3, BatteryLevel);
 }
 
-int toggle(bool buttoned, int spin, int direction)
+int toggle(bool buttoned, bool condition)
 {
   if(!buttoned)
-    if(spin == 0)
-      return direction;
-    else
-      return 0;
+    return !condition;
   else
-    return spin;
+    return condition;
 }
 
 task main()
 {
   initialize();
-  bool buttoned = false;
-  int spin = 0;
+  bool fourButtoned = false;
+  bool tenButtoned = false;
+  bool spin = false;
+  bool driveForward = true;
+  int armspeed = ARMSPEED;
 
   waitForStart();
-
-  //Used for calculating size of triangle of motion that will define point turning left/right
-  float tan_angle_leftright = 1.0 / sqrt(3); // tan(PI / 6), Graph of y=tan(angle_leftright) used for point turn left/right; MUST BE IN RADIANS
-
-  //Used for calculating size of triangle of motion that will define moving forward/back
-  float tan_angle_updown = sqrt(3);          // tan(PI / 3), Graph of y=tan(angle_updown) used for forward/back; MUST BE IN RADIANS
 
   while (true) {
 
@@ -96,6 +89,12 @@ task main()
     //     - Make robot swing-turn when left joystick is pushed
     //       diagonally (ie. pushed into a corner)
 
+    if (joy1Btn(10)==1){
+      driveForward = toggle(tenButtoned, driveForward);
+      PlayTone(220, 1);
+    }
+    tenButtoned = joy1Btn(10);
+
     int wheels_x1 = 0;
     int wheels_y1 = 0;
     int left_wheelsPower = 0;
@@ -104,57 +103,65 @@ task main()
     wheels_x1 = joystick.joy1_x2;	//x-value = left-right joystick movement
     wheels_y1 = joystick.joy1_y2;	//y-value = up-down joystick movmeent
 
-    float tan_line_updown = tan_angle_updown * wheels_x1;
-    float tan_line_leftright = tan_angle_leftright * wheels_x1;
+    float tan_line_updown = wheels_x1+10;
+    float tan_line_leftright = wheels_x1-10;
 
     /*RANGES OF MOTION
-    Take grid of joystick x-values and y-values, split into twelve 30 degree triangles
-    Use graphs of y=tan(30)x, y=-tan(30)x, y=tan(60)x, y=-tan(60)x  -
-    To alter sizes of triangles, change the degree (e.g. tan(45))
-    Test to see which triangle values fall in
-    Depending on triangle, move forwards/backwards/point turn/swing turn
+    Take grid of joystick x-values and y-values, split into twelve divisions by an box-letter x
+    Use graphs of y=x+10, y=x-10, y=-(x+10), y=-(x-10)  -
+    To alter sizes of divisions, change the degree (e.g. tan(45))
+    Test to see which division the values fall in
+    Depending on division, move forwards/backwards/point turn/swing turn
     */
 
     if (abs(wheels_x1) > 10 && abs(wheels_y1) > 10) {	//If in deadzone, ignore movement - no need to run useless code
-      if (wheels_y1 <= tan_line_leftright) {
-        //Must be either Right Point, Right Back Swing, Backwards, or Left Back Swing
+      if (wheels_x1 > 0) {
+        //Must be either Forward, Right Forward Swing, Right Point, Right Backward Swing, or Backward
         //!IMPORTANT: Code works by order, so code CANNOT be merged unless order is followed
-        if (wheels_y1 >= -tan_line_leftright) {
+        if (wheels_y1 >= tan_line_updown) {
+          //Forward
+          left_wheelsPower = WHEELSPEED;
+          right_wheelsPower = WHEELSPEED;
+	    	}else if (wheels_y1 >= tan_line_leftright) {
+          //Swing Turn Right Forward
+	    	  left_wheelsPower = WHEELSPEED;
+          right_wheelsPower = 0;
+        } else if (wheels_y1 >= -tan_line_leftright) {
           //Point Turn Right
           left_wheelsPower = WHEELSPEED;
           right_wheelsPower = -WHEELSPEED;
-	    	}else if (wheels_y1 >= -tan_line_updown) {
-          //Swing Turn Backwards Right
-          left_wheelsPower = -WHEELSPEED;
+        } else if (wheels_y1 >= -tan_line_updown) {
+          //Swing Turn Right Backward
+	    	  left_wheelsPower = -WHEELSPEED;
           right_wheelsPower = 0;
-        } else if (wheels_y1 <= tan_line_updown) {
-          //Backward -- Move both treads backwards
-          left_wheelsPower = -WHEELSPEED;
-          right_wheelsPower = -WHEELSPEED;
         } else {
-          //Swing Turn Backwards Left
-          left_wheelsPower = 0;
+          //Backward
+          left_wheelsPower = -WHEELSPEED;
           right_wheelsPower = -WHEELSPEED;
         }
       } else {
-        //Must be either Left Point, Left Swing, Forwards, or Right Swing
+        //Must be either Forward, Left Forward Swing, Left Point, Left Backward Swing, or Backward
         //!IMPORTANT: Code works by order, so code CANNOT be merged unless order is followed
-        if (wheels_y1 <= -tan_line_leftright) {
-          //Point Turn Left
-          left_wheelsPower = -WHEELSPEED;
+        if (wheels_y1 >= -tan_line_leftright) {
+          //Forward
+          left_wheelsPower = WHEELSPEED;
           right_wheelsPower = WHEELSPEED;
-	      }else if (wheels_y1 <= -tan_line_updown) {
-          //Swing Turn Left
+	      }else if (wheels_y1 >= -tan_line_updown) {
+          //Swing Turn Left Forward
           left_wheelsPower = 0;
           right_wheelsPower = WHEELSPEED;
         } else if (wheels_y1 >= tan_line_updown) {
-          //Forward -- Move both treads forwards
-          left_wheelsPower = WHEELSPEED;
+          //Point Turn Left
+          left_wheelsPower = -WHEELSPEED;
           right_wheelsPower = WHEELSPEED;
+        } else if (wheels_y1 >= tan_line_leftright) {
+          //Swing Turn Left Backward
+          left_wheelsPower = 0;
+          right_wheelsPower = -WHEELSPEED;
         } else {
-          //Swing Turn Right
-          left_wheelsPower = WHEELSPEED;
-          right_wheelsPower = 0;
+          //Backward
+          left_wheelsPower = -WHEELSPEED;
+          right_wheelsPower = -WHEELSPEED;
         }
       }
     } else {		 //Joystick is in dead zone - set powers to zero
@@ -163,13 +170,15 @@ task main()
     }
 
     //Drive Code
+    if(!driveForward && left_wheelsPower != -right_wheelsPower){
+      left_wheelsPower = -left_wheelsPower;
+      right_wheelsPower = -right_wheelsPower;
+    }
+
     motor[frontLeftWheel] = left_wheelsPower;
     motor[backLeftWheel] = left_wheelsPower;
     motor[frontRightWheel] = right_wheelsPower;
     motor[backRightWheel] = right_wheelsPower;
-
-    left_wheelsPower = 0;
-    right_wheelsPower = 0;
 
     //------------------------------------
 
@@ -180,17 +189,23 @@ task main()
     //     - collect balls by spinning a zip-tied rod.
 
     if(joy1Btn(4) == 1){
-      spin = toggle(buttoned, spin, 100);
-      buttoned = true;
+      spin = toggle(fourButtoned, spin);
     }else if(joy1Btn(2) == 1){
-      spin = toggle(buttoned, spin, -100);
-      buttoned = true;
-    }else
-      buttoned = false;
+      motor[leftBallCollector] = -100;
+      motor[rightBallCollector] = -100;
+      motor[topBallCollector] = -100;
+    }
+    fourButtoned = joy1Btn(4);
 
-    motor[leftBallCollector] = spin;
-    motor[rightBallCollector] = spin;
-    motor[topBalllCollector] = spin;
+    if(spin){
+      motor[leftBallCollector] = 100;
+      motor[rightBallCollector] = 100;
+      motor[topBallCollector] = 100;
+    }else{
+      motor[leftBallCollector] = 0;
+      motor[rightBallCollector] = 0;
+      motor[topBallCollector] = 0;
+    }
 
     //------------------------------------
 
@@ -206,14 +221,19 @@ task main()
     //Secondary Objective:
     //     - see if you can find a way to get the arms to rotate to a predetermined position and then stop
 
-    if (joy1Btn(5) == 1) {
+    if(joy1Btn(5) == 1)
+      armspeed = 100;
+    else if(joy1Btn(7) == 1)
+      armspeed = ARMSPEED;
+
+    if (joy1Btn(6) == 1) {
       //MOVE ARM UP 30% POWER
-      motor[leftArm] = -ARMSPEED;
-      motor[rightArm] = -ARMSPEED;
-    } else if (joy1Btn(6) == 1) {
+      motor[leftArm] = -armspeed;
+      motor[rightArm] = -armspeed;
+    } else if (joy1Btn(8) == 1) {
       //MOVE ARM DOWN 30% POWER
-      motor[leftArm] = ARMSPEED;
-      motor[rightArm] = ARMSPEED;
+      motor[leftArm] = armspeed;
+      motor[rightArm] = armspeed;
     } else {
       //DON'T MOVE ARM
       motor[leftArm] = 0;
@@ -230,6 +250,7 @@ task main()
     //     - grab box when btn 2 pressed (LCLAWBOX, RCLAWBOX)
     //     - grab ball when btn 3 pressed (LCLAWBALL, RCLAWBALL)
 
+    /*
     if (joy1Btn(7) == 1) {
       //open left claw
       servo[leftClaw] = LCLAWOPEN;
@@ -241,6 +262,7 @@ task main()
       //close right claw
       servo[rightClaw] = RCLAWCLOSE;
     }
+    */
 
     //------------------------------------
 
